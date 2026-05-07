@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zhanerkem's PyStep • Python курсы</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&family=Fira+Code:wght@400;500&family=Times+New+Roman:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        :root {
+            --bg: #f8f7ff;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --text: #1e1b4b;
+            --text-secondary: #4c4a6e;
+            --primary: #7c3aed;
+            --primary-light: #a78bfa;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: rgba(139, 92, 246, 0.15);
+            --shadow: 0 20px 40px -12px rgba(109, 40, 217, 0.15);
+            --glass: rgba(255, 255, 255, 0.65);
+            --radius: 22px;
+            --radius-sm: 14px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Poppins', sans-serif;
+            --mono: 'Fira Code', monospace;
+            --serif: 'Times New Roman', serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font);
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 30%, #fdf2f8 70%, #f9fafb 100%);
+            min-height: 100vh; color: var(--text); line-height: 1.6; overflow-x: hidden;
+        }
+        .app-container { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 260px; background: var(--glass); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); border-right: 1px solid var(--border);
+            padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 6px;
+            position: sticky; top: 0; height: 100vh; z-index: 20; transition: var(--transition);
+        }
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 10px; padding: 0.5rem 0.8rem 1.2rem;
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.3rem;
+            letter-spacing: 0.5px; background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .sidebar-logo i { font-size: 1.8rem; background: none; -webkit-text-fill-color: var(--primary); }
+        .sidebar-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            border-radius: var(--radius-sm); color: var(--text-secondary); font-weight: 500;
+            font-size: 0.95rem; cursor: pointer; transition: var(--transition); white-space: nowrap;
+        }
+        .sidebar-item i { width: 22px; font-size: 1.15rem; text-align: center; color: var(--primary-light); }
+        .sidebar-item:hover { background: rgba(139, 92, 246, 0.06); color: var(--primary); }
+        .sidebar-item.active { background: white; box-shadow: 0 8px 18px -6px rgba(124, 58, 237, 0.25); color: var(--primary); font-weight: 600; }
+        .sidebar-item.active i { color: var(--primary); }
+        .sidebar-divider { border-top: 1px solid var(--border); margin: 0.5rem 0; }
+        .sidebar-footer { margin-top: auto; font-size: 0.78rem; color: var(--text-secondary); opacity: 0.7; text-align: center; padding: 10px 0; }
+        .main-content { flex: 1; padding: 1.5rem 2rem; overflow-y: auto; max-height: 100vh; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px;
+            border-radius: 40px; border: none; font-weight: 600; font-size: 0.9rem;
+            font-family: var(--font); cursor: pointer; transition: var(--transition); text-decoration: none; white-space: nowrap;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; box-shadow: 0 8px 20px -6px rgba(124, 58, 237, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(124, 58, 237, 0.5); }
+        .btn-outline { background: white; border: 1.5px solid var(--primary-light); color: var(--primary); }
+        .btn-outline:hover { background: rgba(139, 92, 246, 0.05); }
+        .btn-sm { padding: 6px 16px; font-size: 0.8rem; }
+        .btn-xs { padding: 4px 12px; font-size: 0.75rem; border-radius: 20px; }
+        .card {
+            background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(255, 255, 255, 0.6);
+            padding: 1.5rem; margin-bottom: 1.5rem; transition: var(--transition);
+        }
+        .card:hover { box-shadow: 0 24px 44px -10px rgba(109, 40, 217, 0.2); }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .badge-done { background: #d1fae5; color: #065f46; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .progress-bar { width: 100%; height: 12px; background: #e8e5f2; border-radius: 30px; overflow: hidden; margin: 8px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 30px; transition: width 0.4s; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .topic-card {
+            background: white; border-radius: var(--radius-sm); padding: 1.2rem;
+            border: 1.5px solid transparent; cursor: pointer; transition: var(--transition); text-align: center;
+        }
+        .topic-card:hover { border-color: var(--primary-light); box-shadow: 0 12px 28px -8px rgba(109, 40, 217, 0.2); transform: translateY(-3px); }
+        .topic-card.completed { border-color: var(--success); background: #f0fdf7; }
+        .form-input {
+            width: 100%; padding: 12px 18px; border-radius: 30px; border: 1.5px solid #e0dff0;
+            background: white; font-family: var(--font); font-size: 0.9rem; transition: var(--transition); outline: none;
+        }
+        .form-input:focus { border-color: var(--primary-light); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+        .code-block {
+            background: #1e1e3a; color: #e0e0ff; padding: 1rem 1.2rem; border-radius: 16px;
+            font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; white-space: pre-wrap; line-height: 1.7;
+        }
+        .test-option {
+            display: block; padding: 14px 18px; margin: 8px 0; border-radius: 14px;
+            border: 1.5px solid #e0dff0; cursor: pointer; transition: var(--transition); background: white;
+        }
+        .test-option:hover { border-color: var(--primary-light); background: #faf9ff; }
+        .test-option.selected { border-color: var(--primary); background: #ede9fe; }
+        .test-option.correct { border-color: var(--success) !important; background: #d1fae5 !important; }
+        .test-option.wrong { border-color: var(--danger) !important; background: #fee2e2 !important; }
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-muted { color: var(--text-secondary); font-size: 0.85rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .flex { display: flex; }
+        .align-center { align-items: center; }
+        .gap-1 { gap: 0.5rem; }
+        .flex-wrap { flex-wrap: wrap; }
+        .theory-text { font-family: var(--serif) !important; font-size: 1rem; line-height: 1.8; }
+        .theory-text code { font-family: var(--serif) !important; background: #f0f0f0; padding: 2px 8px; border-radius: 4px; font-size: 0.95rem; color: #1e1b4b; }
+        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; margin: 0 auto; }
+        .memory-card { aspect-ratio: 1; background: white; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 600; text-align: center; padding: 8px; transition: var(--transition); background: linear-gradient(145deg, #ede9fe, #ddd6fe); }
+        .memory-card.flipped { background: white; border-color: var(--primary); color: var(--primary); }
+        .memory-card.matched { background: var(--success); color: white; border-color: var(--success); cursor: default; opacity: 0.8; }
+        .glossary-term {
+            font-family: var(--serif); padding: 12px 0; border-bottom: 1px solid var(--border);
+        }
+        .glossary-term h4 { font-family: var(--serif); color: var(--primary); }
+        .glossary-term p, .glossary-term code { font-family: var(--serif) !important; }
+        .glossary-letter {
+            font-size: 2rem; font-weight: 700; color: var(--primary-light); font-family: var(--serif);
+            margin-top: 1.5rem; margin-bottom: 0.5rem;
+        }
+        .crossword-grid { display: grid; gap: 2px; justify-content: center; margin: 0 auto; }
+        .crossword-cell {
+            width: 40px; height: 40px; background: white; border: 1px solid #ccc;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--mono); font-size: 1rem; font-weight: 600;
+            text-transform: uppercase; border-radius: 4px;
+        }
+        .crossword-cell.black { background: #333; }
+        .crossword-cell input {
+            width: 100%; height: 100%; border: none; text-align: center; font-size: 1.1rem;
+            font-weight: 600; text-transform: uppercase; outline: none; border-radius: 4px;
+            font-family: var(--mono); background: transparent;
+        }
+        .crossword-clues { font-family: var(--serif); font-size: 0.95rem; }
+        .sudoku-grid {
+            display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; max-width: 450px; margin: 0 auto;
+            background: #c4b5fd; padding: 3px; border-radius: 14px;
+        }
+        .sudoku-cell {
+            aspect-ratio: 1; background: white; display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-family: var(--mono); cursor: pointer; border-radius: 4px;
+            text-align: center; line-height: 1.2; word-break: break-all; overflow: hidden; padding: 2px;
+            transition: var(--transition); font-weight: 500;
+        }
+        .sudoku-cell.given { background: #ede9fe; font-weight: 700; font-size: 0.85rem; color: var(--primary); }
+        .sudoku-cell:hover { background: #f5f3ff; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2); }
+        .sudoku-cell.selected-cell { box-shadow: 0 0 0 3px var(--primary); z-index: 2; position: relative; }
+        .sudoku-cell.correct { background: #d1fae5 !important; border: 2px solid var(--success) !important; color: #065f46 !important; font-weight: 700; }
+        .sudoku-cell.wrong { background: #fee2e2 !important; border: 2px solid var(--danger) !important; color: #991b1b !important; font-weight: 700; }
+        @keyframes catDance {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(10deg) scale(1.1); }
+            75% { transform: rotate(-10deg) scale(1.1); }
+            50% { transform: rotate(0deg) scale(0.95); }
+        }
+        .cat-animation-container {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 999;
+            text-align: center; pointer-events: none;
+        }
+        .cat-animation-container .dancing-cat { font-size: 6rem; animation: catDance 0.4s infinite; display: block; }
+        .cat-animation-container .congrats-text {
+            font-size: 1.5rem; font-weight: 700; color: var(--primary); background: white;
+            padding: 10px 20px; border-radius: 20px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            margin-top: 10px; display: inline-block;
+        }
+        .task-interactive input[type=text] { width: auto; display: inline; margin: 0 5px; }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="appRoot">
+        <nav class="sidebar" id="sidebarNav">
+            <div class="sidebar-logo"><i class="fas fa-code"></i> PyStep</div>
+            <div class="sidebar-item active" data-page="dashboard"><i class="fas fa-home"></i> <span>Басты</span></div>
+            <div class="sidebar-item" data-page="lessons"><i class="fas fa-book-open"></i> <span>Сабақтар</span></div>
+            <div class="sidebar-item" data-page="tasks"><i class="fas fa-tasks"></i> <span>Тапсырмалар</span></div>
+            <div class="sidebar-item" data-page="games"><i class="fas fa-gamepad"></i> <span>Ойындар</span></div>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-item" data-page="glossary"><i class="fas fa-book"></i> <span>Глоссарий</span></div>
+            <div class="sidebar-item" data-page="finaltest"><i class="fas fa-certificate"></i> <span>Қорытынды тест</span></div>
+            <div class="sidebar-item" data-page="profile"><i class="fas fa-id-card"></i> <span>Профиль</span></div>
+            <div class="sidebar-item" data-page="author"><i class="fas fa-star"></i> <span>Автор</span></div>
+            <div class="sidebar-footer">Zhanerkem's PyStep © 2026</div>
+        </nav>
+        <main class="main-content" id="mainContent"></main>
+    </div>
+
+    <script>
+        (function() {
+            const STORAGE = {
+                USERS: 'ps_users', CURRENT: 'ps_current', PROGRESS: 'ps_progress',
+                TEST_RESULTS: 'ps_testresults', TASKS_DONE: 'ps_tasksdone',
+                GAME_SCORES: 'ps_gamescores', FINAL_PASSED: 'ps_finalpassed'
+            };
+            const TOPIC_ORDER = ['intro', 'while', 'for', 'else', 'break', 'trace'];
+            const TOPIC_TITLES = {
+                intro: '🐍 Python-ға кіріспе', while: '🔄 While циклі', for: '🔁 For циклі',
+                else: '🔀 Else операторы', break: '⏸️ Break & Continue', trace: '📊 Алгоритм трассировкасы'
+            };
+
+            // ============ THEORY (толық, өзгеріссіз) ============
+            const THEORY = {
+                intro: [
+                   { text: "<h3>🐍 Python дегеніміз не?</h3><p>Python-бұл жоғары деңгейлі, түсінуге оңай бағдарламалау тілі. Оны голландиялық бағдарламашы Гвидо ван Россум ойлап тапты. Python тілінің басты ерекшелігі-оның синтаксисі (жазылу ережесі) ағылшын тіліне ұқсас, әрі қарапайым. Сондықтан бастаушыларға үйрену өте жеңіл. Python деген атау жыланға ешқандай қатысы жоқ. Гвидо ван Россум бұл тілді жасап жатқан кезде, ол британдық комедиялық сериал Монти Пайтонның ұшатын циркін (Monty Python's Flying Circus) көруді ұнататын . Оған бұл атау қысқа, ерекше және интригалы болып көрінді. Сөйтіп, ол өзінің жаңа бағдарламалау тілін жыланның емес, дәл осы комедиялық топтың құрметіне атады. Гвидо ван Россум Python тілін жасауға 1989 жылдың желтоқсанында кірісті . Ол сол кезде Нидерландтағы Математика және информатика орталығында жұмыс істейтін. Оның мақсаты-ABC бағдарламалау тілінің мұрагері бола алатын және қателерді өңдеуге қабілетті жаңа тіл жасау . Алғашқы нұсқасы (0.9.0) 1991 жылдың ақпанында жарық көрді . Сол кезден бастап Python әлемдегі ең танымал бағдарламалау тілдерінің біріне айналды. Бүгінгі күні оны веб-сайттар жасауда (backend), деректерді талдауда, жасанды интеллектте, ойындар жасауда, тіпті күнделікті тапсырмаларды автоматтандыруда қолданады. Оны <b>оңай оқылатындығы</b> және <b>қарапайым синтаксисі</b> үшін бүкіл әлемде жақсы көреді.</p><p>🌍 <b>Қолданылу салалары:</b></p><ul><li>🌐 Веб-сайттар (Instagram, YouTube)</li><li>🤖 Жасанды интеллект</li><li>📊 Деректерді талдау</li><li>🎮 Ойын жасау</li></ul>", code: '# Python-ды іске қосу\nprint("Сәлем, Әлем!")' },
+        { text: "<h3>📺 print() функциясы</h3><p><code>print()-бұл Python тіліндегі ең негізгі функциялардың бірі. Оның міндеті-экранға ақпарат шығару. Яғни, біз бағдарламаның нәтижесін көру үшін print() функциясын қолданамыз. Мысалы, егер біз Сәлем, Әлем! деген сөзді экранға шығарғымыз келсе, оны тырнақшаның ішіне жазып, print-ке береміз. Тырнақша (қос немесе жал) мәтін екенін көрсетеді. print функциясы көптеген мәліметтерді бірден шығара алады, ол үшін үтір арқылы бөліп жазу керек. Бағдарламаңыздың жұмысын тексерудің ең оңай жолы-дәл осы print арқылы нәтижені көру.</p><p>Мысалдар:</p>", code: 'print("Сәлем, Әлем!")\nprint(2024)\nprint(3 + 5)' },
+        { text: "<h3>📦 Айнымалылар</h3><p>Айнымалы (variable) дегеніміз-мәліметтерді сақтайтын контейнер немесе жәшік іспеттес. Бағдарлама жұмыс істеп тұрғанда, бізге сандарды, мәтіндерді немесе басқа да мәліметтерді бір жерде сақтап, кейін қолдану қажет болады. Дәл осы кезде айнымалылар көмекке келеді. Python тілінде айнымалыны оңай құруға болады: оған ат беріп, теңдік белгісінен кейін мәнін жазамыз. Мысалы: age = 25. Мұнда age-айнымалының аты, ал 25-оның мәні. Айнымалының атын қою кезінде бос орын болмауы керек, әріптен немесе төменгі сызықшадан басталуы керек. Саннан бастауға болмайды. Айнымалы мәнін кейін өзгертуге де болады.</p><p>Атау қою ережелері: латын әріптері, сандар, _, санмен басталмайды.</p>", code: 'name = "Айша"\nage = 13\nheight = 1.65\nprint(name, age, height)' },
+        { text: "<h3>🔢 Деректер типтері</h3><p>Деректер типі (data type)-айнымалыда сақталған мәліметтің қандай түрге жататынын көрсетеді. Python тілінде әрбір мәліметтің өз типі болады. Ең көп қолданылатын негізгі типтер: <ul><li>int (бүтін сандар): Ондық бөлшегі жоқ сандар. Мысалы: 5, -10, 1000.</li><li>float (бөлшек сандар): Ондық бөлшегі бар сандар. Мысалы: 3.14, 2.5, -0.5.</li><li>str (жол / мәтін): Тырнақшаның ішіне жазылған кез келген мәтін. Мысалы: 'Python', 'Ақбота'.</li><li>bool (логикалық тип): Тек екі мәннің біреуін қабылдайды: True (ақиқат) немесе False (жалған). Бұл тип шарттарды тексеруде қолданылады.</li></ul>Деректер типін білу өте маңызды, себебі әр типпен әр түрлі амалдар орындауға болады.</p>", code: 'x = 10      # int\ny = 3.5     # float\nz = "Python" # str\nt = True     # bool' },
+        { text: "<h3>🔀 Шартты операторлар</h3><p>Өмірде біз күнделікті шешім қабылдаймыз: 'Егер жаңбыр жауса, қолшатыр аламын, әйтпесе алмаймын'. Бағдарламалауда да дәл осындай шешімдер қабылдау үшін шартты операторлар қолданылады. if-'егер' деген мағынаны білдіреді. Егер шарт ақиқат (True) болса, онда if-тен кейінгі код орындалады. elif-'әйтпесе, егер' (else if) деген мағынада. Бірінші шарт орындалмаса, осы жердегі жаңа шарт тексеріледі. else-'әйтпесе' дегенді білдіреді. Жоғарыдағы шарттардың ешқайсысы орындалмаған жағдайда, else блогындағы код іске қосылады. Шартты операторлар бағдарламаның әр түрлі жағдайда әр түрлі әрекет етуіне мүмкіндік береді. Олар кодаңыздың тек белгілі бір шарттар орындалғанда ғана жұмыс істейтін бөліктерін құруға мүмкіндік береді. Шарт ретінде әдетте салыстыру операторлары (==, !=, <, >, <=, >=) және логикалық операторлар (and, or, not) қолданылады. Әр шарттан кейін қос нүкте (:) қойылады және шартқа қарасты кодтар бірдей деңгейде (шегініспен) жазылуы керек. Python бос орындарды блоктарды ажырату үшін пайдаланады. elif және else блоктары міндетті емес, тек if-тің өзі жеткілікті. Мысалы, тек if қолдану: егер адамның жасы 18-ден үлкен немесе тең болса, 'Сіз кәмелетке толғансыз' деген хабарлама шығады; әйтпесе ештеңе болмайды. Ал if-else қолдансақ, жасы 18-ден кіші болған жағдайда else блогы орындалып, 'Сіз кәмелетке толмағансыз' деген хабарлама шығады. Күрделірек мысал: if-elif-else құрылымы бірнеше шартты тексеруге мүмкіндік береді. Мысалы, оқушының балына қарай баға қою: жоғары балл 'өте жақсы', орташа балл 'жақсы', төмен балл 'қанағаттанарлық', ал одан да төмен болса 'қанағаттанарлықсыз' деп бағаланады. Python шарттарды жоғарыдан төмен қарай тексереді, бірінші ақиқат шартқа сәйкес блок орындалады. Шартты операторларды бір-бірінің ішіне де орналастыруға болады (ішкі шарттар). Мысалы, алдымен жасты тексереміз, сосын жасы жетсе, билетінің бар-жоғын тексереміз. Осылайша бағдарлама нақты жағдайларға бейімделе алады. Шартты операторлар бағдарламаны икемді етеді және кез келген күрделі логиканы жүзеге асыруға мүмкіндік береді.</p>", code: 'age = 15\nif age >= 18:\n    print("Кәмелетке толды")\nelif age >= 13:\n    print("Жасөспірім")\nelse:\n    print("Бала")' },
+        { text: "<h3>➕ Арифметикалық операторлар</h3><p>Арифметикалық операторлар-бұл сандармен математикалық амалдар жасауға арналған таңбалар. Python тілінде калькулятордағыдай қарапайым амалдардың барлығы бар:<ul><li>+ (қосу)</li><li>- (азайту)</li><li>* (көбейту)</li><li>/ (бөлу – жауабы әрқашан бөлшек сан болады)</li><li>// (бүтін бөлу-бөлудің нәтижесінде тек бүтін бөлігін аламыз)</li><li>% (қалдықты табу-бөлу кезінде қалған санды көрсетеді)</li><li>** (дәрежеге шығару, мысалы: 2 ** 3 = 8)</li></ul>Бұл операторларды айнымалылармен де, тікелей сандармен де қолдануға болады. Амалдардың орындалу реті математикадағыдай: алдымен дәреже, сосын көбейту мен бөлу, соңында қосу мен азайту.</p>", code: 'a = 10\nb = 3\nprint(a + b)   # 13\nprint(a / b)   # 3.33\nprint(a // b)  # 3\nprint(a ** b)  # 1000' },
+        { text: "<h3>🔣 Логикалық операторлар</h3><p><b>and, or, not</b><ul>Логикалық операторлар бірнеше шартты біріктіру немесе бір шарттың мәнін өзгерту үшін қолданылады. Олардың нәтижесі әрқашан логикалық тип (True немесе False) болады. Негізгі үш логикалық оператор бар:<ul><li>and (және): Барлық шарттар ақиқат болғанда ғана нәтиже True болады. Бір шарттың өзі жалған болса, нәтиже False</li><li>or (немесе): Шарттардың кем дегенде біреуі ақиқат болса, нәтиже True болады. Барлық шарттар жалған болса ғана нәтиже False.</li><li>not (емес): Бір шарттың мәнін керісінше өзгертеді. Егер шарт True болса, not оны False-қа айналдырады, және керісінше.</li></ul>Бұл операторлар күрделі шарттарды тексеру кезінде өте пайдалы. Мысалы: 'егер жасы 18-ден үлкен және құжаты бар болса' деген шартты and арқылы жазуға болады.</ul></p>", code: 'x = 5\nprint(x > 0 and x < 10)  # True\nprint(not (x == 5))        # False' },
+        { text: "<h3>📥 input() функциясы</h3><p>Біздің бағдарламаларымыз пайдаланушымен диалогқа түсе ды. Ол үшін input() функциясы қолданылады. Бұл функция бағдарламаның жұмысын уақытша тоқтатып, пайдаланушының пернетақтадан бірдеңе теріп, Enter басуын күтеді. Пайдаланушы не терсе, сол мәлімет мәтін (str) ретінде бағдарламаға қайтарылады. Біз бұл мәліметті айнымалыға сақтап аламыз. Мысалы: name = input('Атыңызды енгізіңіз: ') деп жазсақ, экранда 'Атыңызды енгізіңіз: ' деген жазу шығып, пайдаланушы атты тергенше күтеді. Терілген мән name айнымалысына сақталады. Бұл бағдарламаны интерактивті етеді.</p>", code: 'name = input("Атыңыз кім? ")\nprint("Сәлем,", name)' },
+        { text: "<h3>✅ Қорытынды</h3><p>Жарайсың, сен бірінші тақырыпты аяқтадың! Келесі беттен python ресми сайттан жүктеп ала аласың. Енді циклдерге көшеміз.</p>", code: '# Келесі тақырып: while циклі' },
+        { text: "<h3>📥 Python жүктеп алу</h3><p>Ресми сайттан Python бағдарламалау тілін жүктеп алу үшін төмендегі батырманы басыңыз:</p><p><a href='https://www.python.org/downloads/' target='_blank' style='display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;'>🐍 Python жүктеп алу</a></p>", code: '# Енді Python орнатып, бағдарламалауды бастаңыз!' },
+           ],
+                while: [
+                    { text: "<h3>🔄 While цикліні</h3><p>While циклі-берілген шарт ақиқат болғанша қайталана беретін бағдарлама құрылымы. Оны 'әзірге' циклі деп атайды. Яғни, шарт орындалып тұрғанда, цикл ішіндегі код блогы қайталана береді. <b>Синтаксисі:</b> while шарт: деп жазылады да, келесі жолдан бастап шегініс жасалып, цикл ішіндегі кодтар жазылады. Шарт-логикалық өрнек, мысалы x < 5 немесе a != b сияқты. Егер шарт ақиқат болса, цикл денесі орындалады. Содан кейін қайтадан шарт тексеріледі. Шарт жалған болғанда ғана цикл аяқталады. Цикл ішінде шартқа әсер ететін өзгеріс болуы керек, әйтпесе шексіз цикл пайда болады.</p>", code: 'i = 1\nwhile i <= 5:\n    print(i)\n    i += 1' },
+                { text: "<h3>🔢 Санауыш айнымалысы</h3><p>Цикл жұмысын басқару үшін жиі санауыш айнымалысы қолданылады. Ол циклдің неше рет орындалғанын есептейді және әдетте циклдің аяқталу шартына тікелей әсер етеді. Санауыш бастапқы мәнге ие болады да, цикл әр айналған сайын белгілі бір қадамға өзгеріп отырады (көбінесе 1-ге артады немесе кемиді). Санауышты өсіру арқылы да, кеміту арқылы да қолдануға болады. Мысалы, санауыш 0-ден басталып, цикл сайын 1-ге артып, белгілі бір шекке жеткенде цикл тоқтайды. </p>", code: 'count = 0\nwhile count < 3:\n    print("Әлем")\n    count += 1' },
+                { text: "<h3>⚠️ Шексіз цикл</h3><p>Егер while циклінің шарты ешқашан жалған болмаса, цикл шексіз қайталана береді. Бұл көбінесе бағдарламалық қате, себебі бағдарлама тоқтаусыз жұмыс істей береді. Мысалы, цикл ішінде шартты өзгертетін команданы жазып ұмытсаңыз, шексіз цикл пайда болады. Алайда кейде шексіз цикл әдейі қолданылады. Онда цикл ішінде белгілі бір жағдайда break командасы арқылы циклден шығуды қарастырады. Мысалы, while True: деп бастап, ішінде пайдаланушының командасын күтіп, арнайы 'stop' командасы келгенде break арқылы тоқтатуға болады.</p>", code: 'while True:\n    ans = input("Жалғастыру? (иә/жоқ): ")\n    if ans == "жоқ":\n        break' },
+                { text: "<h3>🔄 while...else</h3><p>Python тілінде while циклімен бірге else блогын қолдануға болады. else блогы цикл шарты жалған болғанда орындалады, бірақ цикл break арқылы тоқтатылса, else блогы орындалмайды. Бұл конструкция циклдің break арқылы бұзылғанын немесе табиғи аяқталғанын тексеру үшін пайдалы. Егер цикл толық аяқталса, else блогы іске қосылады, ал егер break көмегімен тоқтатылса, else іске қосылмайды.</p>", code: 'i = 1\nwhile i <= 3:\n    print(i)\n    i += 1\nelse:\n    print("Цикл аяқталды")' },
+                { text: "<h3>🔁 Пайдаланушыдан сан енгізуді сұрау</h3>", code: 'num = -1\nwhile num <= 0:\n    num = int(input("Оң сан енгізіңіз: "))' },
+                { text: "<h3>➕ 1-ден N-ге дейінгі қосынды</h3><p>1-ден n-ге дейінгі натурал сандардың қосындысын while циклі арқылы есептеуге болады. Ол үшін қосындыны сақтайтын айнымалыны бастапқыда 0-ге теңеп аламыз. Содан кейін санауышты 1-ден бастап, n-ге жеткенше цикл жүргіземіз. Циклдің әр айналымында санауыштың мәнін қосындыға қосып, санауышты 1-ге арттырамыз. Санауыш n-ден асып кеткенде цикл аяқталады және қосынды шығарылады. Осы тәсілмен тек жұп сандардың немесе тақ сандардың қосындысын да есептеуге болады.</p>", code: 'n = 10\ntotal = 0\ni = 1\nwhile i <= n:\n    total += i\n    i += 1\nprint("Қосынды:", total)' },
+                { text: "<h3>📋 Тізімді while арқылы шығару</h3><p>Тізімнің әр элементін while циклі арқылы индекстеп шығаруға болады. Ол үшін индекс айнымалысын (санауыш) қолданамыз. Индексті 0-ден бастаймыз, себебі тізімнің бірінші элементінің индексі 0. Цикл шарты ретінде индекс тізімнің ұзындығынан кіші екенін тексереміз. Тізімнің ұзындығын len() функциясы арқылы аламыз. Циклдің әр айналымында ағымдағы индекстегі элементті шығарып, индексті 1-ге арттырамыз. Осылайша тізімнің барлық элементтерін ретімен шығаруға болады.</p>", code: 'fruits = ["алма", "банан", "шие"]\ni = 0\nwhile i < len(fruits):\n    print(fruits[i])\n    i += 1' },
+                { text: "<h3>🔢 Санның цифрларын қосу</h3><p>Цикл көмегімен санның цифрларын бір-бірлеп алуға болады. Ол үшін санды 10-ға бөлу және қалдықты алу әдісі қолданылады. Санның соңғы цифрын алу үшін оны 10-ға бөлгендегі қалдығын аламыз. Содан кейін санды 10-ға бүтін бөлеміз, осылайша соңғы цифрды алып тастаймыз. Бұл процесс сан 0-ге тең болғанша қайталанады. Осы тәсілмен санның цифрларын бөліп алып, олардың қосындысын, санын табуға немесе кері тәртіппен шығаруға болады.</p>", code: 'n = 12345\nsumma = 0\nwhile n > 0:\n    digit = n % 10\n    summa += digit\n    n //= 10\nprint("Цифрлар қосындысы:", summa)' },
+                { text: "<h3>🎲 Кездейсоқ санды табу ойыны</h3><p>Бұл ойында компьютер 1-ден 100-ге дейін кездейсоқ сан ойлайды, ал пайдаланушы сол санды табуы керек. While циклі ойынды дұрыс сан табылғанша жалғастырады. Пайдаланушы сан енгізеді, компьютер енгізілген санды ойлаған санмен салыстырады. Егер пайдаланушының саны кіші болса, 'Кіші' деген кеңес беріледі, үлкен болса, 'Үлкен' деген кеңес беріледі. Дұрыс сан табылған кезде цикл аяқталып, құттықтау хабарламасы шығады.</p>", code: 'import random\nsecret = random.randint(1, 100)\nguess = None\nwhile guess != secret:\n    guess = int(input("Санды енгіз: "))\n    if guess < secret:\n        print("Кіші")\n    elif guess > secret:\n        print("Үлкен")\nprint("Дұрыс!")' },
+                { text: "<h3>🔐 Парольді тексеру</h3><p>Бұл қарапайым аутентификация мысалы. Бағдарламада алдын ала белгіленген дұрыс пароль сақталады. While циклі пайдаланушыдан парольді сұрап, оны дұрыс парольмен салыстырады. Егер енгізілген пароль дұрыс болмаса, қате туралы хабарлама шығып, қайта сұрайды. Бұл процесс пайдаланушы дұрыс пароль енгізгенше жалғасады. Дұрыс пароль енгізілгенде цикл аяқталып, 'Қош келдіңіз' деген хабарлама шығады.</p>", code: 'password = "python123"\nuser_pass = ""\nwhile user_pass != password:\n    user_pass = input("Парольді енгіз: ")\nprint("Қош келдіңіз!")' },
+                { text: "<h3>📈 Факториал есептеу</h3><p><b>n! = 1·2·3·...·n</b>Факториал – 1-ден n-ге дейінгі барлық натурал сандардың көбейтіндісі. Ол n! деп белгіленеді. While циклі арқылы факториалды есептеу үшін факториалды сақтайтын айнымалыны бастапқыда 1-ге теңеп аламыз. Санауышты 1-ден бастап, n-ге жеткенше цикл жүргіземіз. Циклдің әр айналымында факториалды санауыштың мәніне көбейтіп, санауышты 1-ге арттырамыз. Санауыш n-ден асып кеткенде цикл аяқталады және факториалдың мәні шығарылады. Бұл әдіс арқылы кез келген n санының факториалын есептеуге болады.</p>", code: 'n = 5\nfactorial = 1\ni = 1\nwhile i <= n:\n    factorial *= i\n    i += 1\nprint(f"{n}! = {factorial}")' }
+            ],
+                for: [
+                   { text: "<h3>🔁 For цикліні</h3><p>For циклі-белгілі бір тізбектің элементтері бойынша қайталанатын цикл. Ол 'әрбір элемент үшін' деген мағынаны білдіреді және әдетте қайталану саны алдын ала белгілі болғанда қолданылады. Синтаксисі for айнымалы in тізбек: деп жазылады. Мұндағы айнымалы әр қайталану сайын тізбектің келесі элементінің мәнін қабылдайды. Тізбек ретінде тізім, жол, range объектісі немесе кез келген итерацияланатын нысан қолданыла алады. Цикл денесіндегі код тізбектегі әрбір элемент үшін бір рет орындалады. For циклі while цикліне қарағанда ықшамдырақ және қате жіберу ықтималдығы аз, себебі санауышты өзі басқарады.</p>", code: 'fruits = ["алма", "банан", "шие"]\nfor fruit in fruits:\n    print(fruit)' },
+                { text: "<h3>🔢 range() функциясы</h3><p>range()-бұл сандар тізбегін жасайтын арнайы функция. Ол for циклімен бірге жиі қолданылады, әсіресе белгілі бір рет қайталану қажет болғанда. range() функциясының бірнеше қолданылу түрі бар. Бірінші түрі range(stop)-0-ден бастап stop-1-ге дейінгі сандар тізбегін жасайды. Екінші түрі range(start, stop)-start-тан бастап stop-1-ге дейінгі сандарды береді. Үшінші түрі range(start, stop, step)-start-тан бастап stop-1-ге дейін step қадамымен сандарды жасайды. range() объектісі жадында бірден барлық сандарды сақтамайды, ол қажет болған сайын сандарды генерациялайды, сондықтан үлкен диапазондармен жұмыс істегенде де жадыны үнемдейді.</p>", code: 'for i in range(5):\n    print(i)  # 0,1,2,3,4' },
+                { text: "<h3>📐 range(start, stop, step)</h3><p>range функциясының толық нұсқасы үш параметр қабылдайды: start, stop және step. start параметрі тізбектің бірінші мәнін көрсетеді. stop параметрі тізбектің қай санға дейін баратынын анықтайды, бірақ бұл санның өзі тізбекке кірмейді. step параметрі әрбір келесі мәннің алдыңғыдан қаншаға артық немесе кем болатынын көрсетеді. Егер step оң сан болса, тізбек өсу ретімен жасалады. Егер step теріс сан болса, тізбек кему ретімен жасалады. Бұл жағдайда start stop-тан үлкен болуы керек, әйтпесе тізбек бос болады. Мысалы, start=5, stop=0, step=-1 берілсе, 5,4,3,2,1 сандары алынады.</p>", code: 'for i in range(1, 10, 2):\n    print(i)  # 1,3,5,7,9' },
+                { text: "<h3>🔁 Кері санау</h3><p>range функциясының step параметрін теріс мәнмен беру арқылы кері санау тізбегін жасауға болады. Кері санау кезінде start мәні stop мәнінен үлкен болуы керек, ал step теріс санмен беріледі. Мысалы, 5-тен 1-ге дейінгі сандарды кері ретпен алу үшін range(5, 0, -1) қолданылады. Бірінші мән 5 болады, содан кейін әр қадамда мән step-ке азайып отырады. Мән stop-қа жеткенде немесе одан асып кеткенде цикл тоқтайды. Бұл тәсілді әдетте элементтерді кері тәртіппен өңдеу қажет болғанда қолданады, мысалы, тізімді керісінше шығару немесе уақытты кері санау.</p>", code: 'for i in range(5, 0, -1):\n    print(i)  # 5,4,3,2,1' },
+                { text: "<h3>🪆 Кірістірілген for циклдері</h3><p>Бір for циклінің ішінде тағы бір for циклі болуы мүмкін, бұл кірістірілген цикл деп аталады. Кірістірілген циклдерде сыртқы циклдің әрбір қайталануында ішкі цикл толығымен орындалады. Яғни, егер сыртқы цикл 5 рет, ал ішкі цикл 3 рет қайталанса, барлығы 15 рет орындалады. Кірістірілген циклдер көбінесе көп өлшемді құрылымдармен жұмыс істегенде қолданылады, мысалы, екі өлшемді тізімдерді өңдеу, матрицалармен амалдар жасау немесе кестелер құру. Кірістірілген циклдердің тереңдігі шектелмеген, бірақ тым терең кірістіру кодты түсінуді қиындатып, бағдарламаның жұмысын баяулатуы мүмкін.</p>", code: 'for i in range(1, 4):\n    for j in range(1, 4):\n        print(f"{i}*{j}={i*j}")' },
+                { text: "<h3>📊 Көбейту кестесі</h3><p>Кірістірілген for циклінің классикалық мысалы – көбейту кестесін шығару. Бұл мысалда бір цикл көбейткіштің бірінші санын, ал ішкі цикл екінші санын қамтиды. Сыртқы цикл бірінші санды 1-ден бастап белгілі бір шекке дейін өзгертеді, ал ішкі цикл әрбір бірінші сан үшін екінші санды 1-ден бастап өзгертіп, көбейтіндіні есептейді. Әрбір ішкі цикл аяқталған соң жаңа жолға көшу керек, сонда көбейту кестесі түрінде шығады. Көбейту кестесін шығару кезінде әдетте бағандарды түзету үшін табуляция немесе белгілі бір бос орындар қолданылады, сонда кесте ұқыпты көрінеді.</p>", code: 'for i in range(1, 6):\n    for j in range(1, 6):\n        print(f"{i}*{j}={i*j}", end="\\t")\n    print()' },
+                { text: "<h3>📝 Тізімнің қосындысы</h3><p>For циклі тізімнің барлық элементтерін қосып, олардың қосындысын табу үшін өте ыңғайлы. Бұл үшін алдымен қосындыны сақтайтын айнымалыны бастапқыда 0-ге теңейміз. Содан кейін for циклі арқылы тізімнің әрбір элементін алып, оны қосынды айнымалысына қосамыз. Цикл тізімдегі барлық элементтерді қарап шыққан соң, қосынды айнымалысында тізімдегі сандардың жалпы қосындысы сақталады. Бұл тәсіл тізімдегі сандардың санына қарамастан жұмыс істейді және тізімнің элементтерін индекстеуді қажет етпейді, себебі for циклі элементтерді тікелей береді.</p>", code: 'numbers = [5, 12, 8, 3]\ntotal = 0\nfor num in numbers:\n    total += num\nprint("Қосынды:", total)' },
+                { text: "<h3>📋 Тізімдегі жұп сандар</h3><p>For циклі ішінде шартты операторды қолданып, тізім элементтерін сүзгілеуге болады. Мысалы, тек жұп сандарды ғана шығару үшін әрбір элементтің 2-ге бөлінетінін тексереміз. Егер сан 2-ге қалдықсыз бөлінсе, ол жұп сан болып есептеледі. Цикл тізімнің әрбір элементін ретімен қарап шығады, тек жұп сандарды ғана экранға шығарады. Қалған элементтер еленбейді. Осылайша тақ сандарды, белгілі бір шартқа сай элементтерді таңдап алуға болады. Бұл тәсіл деректерді өңдеу, талдау және сүзгілеу кезінде жиі қолданылады.</p>", code: 'numbers = [1,2,3,4,5,6]\nfor n in numbers:\n    if n % 2 == 0:\n        print(n)' },
+                { text: "<h3>✅ for...else</h3><p>Python тілінде for циклімен бірге else блогын қолдануға болады. Бұл else блогы цикл break операторы арқылы тоқтатылмаған жағдайда ғана орындалады. Яғни, цикл тізбектегі барлық элементтерді толығымен аяқтап шықса, else іске қосылады. Егер цикл ішінде break командасы орындалып, цикл ерте тоқтатылса, else блогы орындалмайды. Бұл конструкция циклдің табиғи жолмен аяқталғанын немесе break арқылы бұзылғанын анықтау үшін пайдалы. Мысалы, тізімнен белгілі бір элементті іздегенде, элемент табылып, break жасалса, else орындалмайды, ал элемент табылмаса, else блогында 'Элемент табылмады' деген хабарлама шығаруға болады.</p>", code: 'for i in range(3):\n    print(i)\nelse:\n    print("Аяқталды")' },
+               ],
+                else: [
+                   { text: "<h3>🔀 else</h3><p>else операторы-Python тіліндегі шартты оператордың бір бөлігі ғана емес, ол циклдермен де бірге қолданыла алады. Әдетте else if-пен бірге 'әйтпесе' деген мағынада жұмыс істейді. Бірақ циклдер контекстінде else басқаша мағынаға ие. Циклдің else блогы цикл толығымен аяқталғанда, яғни цикл шарты жалған болғанда немесе тізбектің соңына жеткенде орындалады. Алайда егер цикл break операторы арқылы тоқтатылса, else блогы орындалмайды. Бұл механизм циклдің қалай аяқталғанын анықтауға мүмкіндік береді: табиғи жолмен бе, әлде break арқылы ма.</p>", code: 'for i in range(3):\n    if i == 2:\n        break\nelse:\n    print("break болмады")' },
+                { text: "<h3>🔄 while-for</h3><p>for және while циклдерінің екеуінде де else блогын қолдануға болады. for циклінде else тізбектегі барлық элементтер өңделгеннен кейін орындалады. while циклінде else цикл шарты жалған болғанда орындалады. Екі жағдайда да, егер цикл break арқылы тоқтатылса, else блогы іске қосылмайды. Бұл қасиет әсіресе іздеу алгоритмдерінде, деректерді тексеруде пайдалы. Мысалы, тізімнен белгілі бір элементті іздегенде, элемент табылса break жасалады, ал табылмаса else блогында 'табылмады' деген хабарлама шығаруға болады. Осылайша біз циклдің толық аяқталғанын немесе ерте тоқтағанын ажырата аламыз.</p>", code: 'i = 0\nwhile i < 3:\n    i += 1\n    if i == 2:\n        break\nelse:\n    print("break болмады")' },
+                { text: "<h3>🔍 Іздеу алгоритмі for мысалы</h3><p>Бұл мысалда бізде жемістер тізімі бар: алма, банан, шие. Бағдарлама осы тізімнен 'алма' деген жемісті іздейді. Ол үшін for циклі арқылы тізімнің әрбір элементін алып, оны ізделінді мәнмен салыстырады. Егер элемент ізделінді мәнге тең болса, экранға 'Табылды!' деген хабарлама шығарылып, цикл break арқылы тоқтатылады. Егер цикл барлық элементтерді тексеріп шығып, ешқандай сәйкестік таппаса, онда for циклінің else блогы орындалып, 'Табылмады' деген хабарлама шығады. Бұл жерде else блогы элементтің тізімде жоқ екенін хабарлау үшін қолданылады. break болмағандықтан, else іске қосылады.</p>", code: 'fruits = ["алма", "банан", "шие"]\nsearch = "алма"\nfor f in fruits:\n    if f == search:\n        print("Табылды!")\n        break\nelse:\n    print("Табылмады")' },
+                { text: "<h3>🔎 Жай санды тексеру мысалы</h3><p>Бұл мысалда берілген санның жай сан (тек 1-ге және өзіне бөлінетін) немесе құрама сан (басқа бөлгіштері бар) екенін анықтайды. Ол үшін n санының мәні 11. Цикл 2-ден бастап n-1-ге дейінгі сандарды аралап, әрбір i үшін n-нің i-ге қалдықсыз бөлінетінін тексереді. Егер бөлінетін болса, яғни n % i == 0 шарты орындалса, бұл n-нің басқа бөлгіші бар деген сөз, сондықтан 'Құрама сан деп шығарып, цикл break арқылы тоқтатылады. Егер цикл соңына дейін ешбір бөлгіш табылмаса, яғни break орындалмаса, онда for циклінің else блогы іске қосылып, 'Жай сан' деген хабарлама шығады. 11 саны жай сан болғандықтан, циклде break болмайды, сөйтіп else блогы орындалады.</p>", code: 'n = 11\nfor i in range(2, n):\n    if n % i == 0:\n        print("Құрама сан")\n        break\nelse:\n    print("Жай сан")' },
+              ],
+                break: [
+                    { text: "<h3>⏸️ break операторы</h3><p>break операторы циклді толығымен тоқтату үшін қолданылады. Ол орындалған кезде, цикл дереу аяқталып, бағдарлама циклден кейінгі кодты жалғастырады. Мысалы, 0-ден 9-ға дейінгі сандарды шығаратын циклде, егер сан 4-ке тең болғанда break қойылса, цикл 4-ке жеткенде тоқтайды. Нәтижесінде 0,1,2,3 сандары ғана шығады, себебі 4-те цикл бұзылады. break әдетте белгілі бір шарт орындалғанда циклді ерте аяқтау қажет болғанда қолданылады, мысалы, іздеу кезінде элемент табылса, одан әрі іздеудің қажеті жоқ.</p>", code: 'for i in range(10):\n    if i == 4:\n        break\n    print(i)' },
+                { text: "<h3>⏭️ continue операторы</h3><p>continue операторы ағымдағы итерацияны өткізіп, келесі итерацияға бірден көшуге мүмкіндік береді. Ол орындалғанда, циклдің қалған коды атталып, келесі қайталану басталады. Мысалы, 0-ден 4-ке дейінгі сандарды шығаратын циклде, егер сан 2-ге тең болғанда continue қойылса, 2 саны шықпайды. Нәтижесінде 0,1,3,4 сандары ғана шығады. continue көбінесе белгілі бір шартқа сай келетін элементтерді өткізіп жіберу үшін қолданылады, мысалы, тек жұп сандарды өңдеу кезінде тақ сандарды өткізіп жіберу.</p>", code: 'for i in range(5):\n    if i == 2:\n        continue\n    print(i)' },
+                { text: "<h3>⚖️ break vs continue</h3><p>break және continue екеуі де циклді басқаруға арналған, бірақ олардың әсері әртүрлі. break циклді толығымен тоқтатады, ал continue тек ағымдағы итерацияны тоқтатып, келесі итерацияға өтеді. Мысалы, 0-ден 4-ке дейінгі сандарды өңдейтін циклде, егер сан 3-ке тең болса break орындалады, ал сан 1-ге тең болса continue орындалады. Бұл жағдайда 0 шығады, 1-де continue болғандықтан 1 шықпайды, 2 шығады, ал 3-те break болғандықтан цикл тоқтап, 3 және 4 шықпайды. Нәтижесінде тек 0 және 2 сандары ғана шығады. Бұл мысал екі оператордың айырмашылығын анық көрсетеді.</p>", code: 'for i in range(5):\n    if i == 3: break\n    if i == 1: continue\n    print(i)  # 0,2' },
+                { text: "<h3>🎯 Практикалық мысал</h3><p>continue операторын қолданып, цикл ішінде белгілі бір шартқа сай келетін элементтерді ғана өңдеуге болады. Мысалы, 0-ден 9-ға дейінгі сандардың ішінен тек жұп сандарды шығару үшін, тақ сандар кездескенде continue қолданамыз. Санды 2-ге бөлгенде қалдық 1 болса, ол тақ сан, сондықтан continue орындалып, қалған код атталады. Тек жұп сандар (қалдық 0) ғана шығады. Нәтижесінде 0,2,4,6,8 сандары экранға шығады. Бұл тәсіл деректерді сүзгілеуде өте пайдалы.</p>", code: '# Тек жұп сандарды шығару\nfor i in range(10):\n    if i % 2:\n        continue\n    print(i)' },
+                { text: "<h3>⏭️ continue көмегімен тақ сандарды өткізу</h3><p>Тағы бір мысалда, 1-ден 10-ға дейінгі сандарды қарастырамыз. Мақсат-тек жұп сандарды ғана 'жұп' деп белгілеп шығару. Ол үшін әр санды тексереміз: егер сан тақ болса (яғни 2-ге бөлгенде қалдық 1), continue операторы орындалып, қалған код атталып, келесі санға көшеміз. Егер сан жұп болса, онда оны 'жұп' деген жазумен бірге шығарамыз. Нәтижесінде экранға тек 2 жұп, 4 жұп, 6 жұп, 8 жұп, 10 жұп деген жазулар шығады. Бұл continue арқылы қажетсіз элементтерді қалай өткізіп жіберуге болатынын көрсетеді.</p>", code: 'for i in range(1, 11):\n    if i % 2 == 1:\n        continue\n    print(i, "жұп")' },
+                { text: "<h3>🔀 Кірістірілген циклде break</h3><p>Кірістірілген циклдерде break операторы тек өз ішінде тұрған циклге ғана әсер етеді, сыртқы циклге әсері жоқ. Мысалы, сыртқы цикл i 0-ден 2-ге дейін, ішкі цикл j 0-ден 2-ге дейін жүреді. Ішкі циклде j 1-ге тең болғанда break қойылған. Бұл дегеніміз, әрбір i үшін ішкі цикл j=0-ді шығарады, содан кейін j=1 кезінде break орындалып, ішкі цикл тоқтайды. Сосын сыртқы цикл келесі i-ге көшеді. Нәтижесінде экранға (0,0), (1,0), (2,0) жұптары ғана шығады. Сыртқы цикл ешқандай әсерге ұшырамайды, тек ішкі цикл ғана тоқтайды. Бұл қасиет күрделі құрылымдарды өңдеуде маңызды.</p>", code: 'for i in range(3):\n    for j in range(3):\n        if j == 1:\n            break\n        print(i, j)' },
+            ],
+                trace: [
+                    { text: "<h3>📊 Трассировка дегеніміз не?</h3><p>Трассировка (немесе алгоритм трассировкасы) – бұл бағдарламаның орындалу процесін қадамдық түрде қағаз бетіне түсіру әдісі. Ол бағдарламашыға кодтың әрбір қадамында не болып жатқанын көзбен көруге, айнымалылардың мәндерінің өзгеруін бақылауға мүмкіндік береді. Трассировка әсіресе күрделі циклдер, шартты операторлар және функциялар жұмысын түсінуде, сондай-ақ бағдарламадағы логикалық қателерді табуда өте пайдалы. Трассировканы әдетте кесте түрінде жүргізеді, онда әрбір қадам нөмірленіп, айнымалылардың мәндері, шарттардың нәтижелері жазылады. Бұл әдіс бағдарламалауды үйренушілерге алгоритмнің жұмыс істеу механизмін терең түсінуге көмектеседі.</p>", code: 'x = 5\ny = x + 2\nprint(y)' },
+                { text: "<h3>🔄 While трассировкасы</h3><p>while циклінің трассировкасын жүргізу үшін циклдің әрбір қайталануындағы шартты тексеру нәтижесін және айнымалылардың мәндерінің өзгерісін қадағалау қажет. while циклі шарт ақиқат болғанша жалғасады, сондықтан әр итерация алдында шарт тексеріледі. Трассировка кестесінде әр қадамда айнымалы мәндері мен шарт нәтижесі жазылады. Мысалы, i = 0; while i < 3: i += 1 деген кодты трассировкалағанда, i мәні 0-ден бастап әр итерацияда 1-ге артып, i=3 болғанда шарт жалғанға айналады. Трассировка циклдің қалай жұмыс істейтінін, қанша рет қайталанатынын және әр қадамда айнымалылар қалай өзгеретінін нақты көрсетеді.</p>", code: 'i = 1\nwhile i <= 3:\n    print(i)\n    i += 1' },
+                { text: "<h3>🔁 For трассировкасы</h3><p>for циклінің трассировкасы range функциясының мәндерін және цикл айнымалысының өзгеруін қадағалауды қамтиды. for циклі тізбектегі элементтер саны бойынша қайталанады, сондықтан трассировка кезінде әрбір итерациядағы айнымалы мәнін жазып отырамыз. Мысалы, for i in range(3): print(i) деген кодта i мәндері 0,1,2 болады. Трассировка кестесінде әрбір итерация үшін i мәні мен орындалатын әрекет жазылады. For циклінің трассировкасы әдетте while-қа қарағанда қарапайым, себебі итерация саны алдын ала белгілі. Алайда кірістірілген циклдерде немесе шартты операторлармен бірге келгенде трассировка күрделене түседі.</p>", code: 'total = 0\nfor i in range(1,4):\n    total += i' },
+                { text: "<h3>🧩 Мысал (if ішінде цикл)</h3><p>Трассировканы қағазға түсіру.Енді трассировканы қағазға түсірудің нақты мысалын қарастырайық. Берілген код: Бұл кодта алдымен a және b мәндері берілген. Содан кейін a < b шарты тексеріледі. Егер шарт ақиқат болса, for циклі орындалады, онда i 0-ден 1-ге дейін өзгереді. Цикл ішінде a -ға i қосылады, ал b-дан i азайтылады. Соңында a және b мәндері шығарылады. Трассировканы қадамдық түрде жүргізгенде, алдымен шарттың нәтижесін, содан кейін циклдің әр итерациясындағы a және b мәндерінің өзгерісін жазамыз. Бұл мысалда шарт ақиқат, сондықтан цикл орындалады. i=0 кезінде a өзгермейді, b өзгермейді. i=1 кезінде a=3, b=2 болады. Соңында a=3, b=2 шығады. </p>", code: 'a = 2\nb = 3\nif a < b:\n    for i in range(2):\n        a += i\n        b -= i\nprint(a, b)' },
+                { text: "<h3>📊 Трассировка кесте үлгісі</h3><p>Трассировканы кесте түрінде жазу өте ыңғайлы. Әр қадамда айнымалылардың мәндері мен шарттардың нәтижелерін жазып отырамыз. Бұл кестеде әрбір қадамда a, b, i мәндері қалай өзгергені көрсетілген. Мұндай кестелер күрделі алгоритмдерді түсінуге және қателерді табуға көп көмектеседі. Трассировка жасау дағдысы бағдарламашы үшін өте маңызды, себебі ол кодтың логикасын терең түсінуге мүмкіндік береді.</p>", code: '# Қадам | a | b | i | шарт\n#   1   | 2 | 3 | - | a<b? True\n#   2   | 2 | 3 | 0 | ішкі цикл\n#   3   | 2 | 3 | 0 | a+=i → a=2\n#   4   | 2 | 3 | 0 | b-=i → b=3\n#   5   | 2 | 3 | 1 | келесі итерация\n#   6   | 2 | 3 | 1 | a+=i → a=3\n#   7   | 3 | 3 | 1 | b-=i → b=2\n#   8   | 3 | 2 | - | цикл соңы\n#   9   | 3 | 2 | - | print: 3 2' },
+           ]
+            };
+
+            // ============ QUIZZES (толық) ============
+            const QUIZZES = {
+                intro: [
+                    { q: 'print() не істейді?', opts: ['Енгізеді', 'Шығарады', 'Қосады', 'Жояды'], ans: 1 },
+                    { q: 'Айнымалы қалай жарияланады?', opts: ['var x=5', 'x=5', 'int x=5', 'dim x=5'], ans: 1 },
+                    { q: 'Мәтін типі?', opts: ['int', 'str', 'float', 'bool'], ans: 1 },
+                    { q: 'if-тен кейін не қойылады?', opts: [';', ':', '{}', '()'], ans: 1 },
+                    { q: 'Python файлының кеңейтілуі?', opts: ['.py', '.java', '.js', '.cpp'], ans: 0 },
+                    { q: 'input() функциясы не істейді?', opts: ['Мәлімет енгізеді', 'Мәлімет шығарады', 'Есептейді', 'Жояды'], ans: 0 },
+                    { q: 'int("5") + 3 нәтижесі?', opts: ['8', '53', '35', 'Қате'], ans: 0 },
+                    { q: '5 % 2 мәні?', opts: ['1', '2', '2.5', '0'], ans: 0 },
+                    { q: 'bool(0) мәні?', opts: ['False', 'True'], ans: 0 },
+                    { q: 'print("Сәлем, " + "әлем!") не шығарады?', opts: ['Сәлем, әлем!', 'Сәлем,әлем!', 'Қате'], ans: 0 }
+                ],
+                while: [
+                    { q: 'while шарты қашан тексеріледі?', opts: ['Әр итерация алдында', 'Әр итерациядан кейін', 'Бір рет', 'Соңында'], ans: 0 },
+                    { q: 'Шексіз цикл:', opts: ['while False:', 'while True:', 'while 0:', 'while None:'], ans: 1 },
+                    { q: 'break не істейді?', opts: ['Тоқтатады', 'Өткізеді', 'Қайталайды', 'Қате'], ans: 0 },
+                    { q: 'continue не істейді?', opts: ['Тоқтатады', 'Келесіге өтеді', 'Шығарады', 'Қате'], ans: 1 },
+                    { q: 'while i<5: i+=1 (i=0) неше рет?', opts: ['4', '5', '6', '3'], ans: 1 },
+                    { q: 'while циклінде шарт алдын ала тексерілмей ме?', opts: ['Тексеріледі', 'Тексерілмейді'], ans: 0 },
+                    { q: 'while True: қандай цикл?', opts: ['Шексіз', 'Бір рет', 'Екі рет', 'Нөл рет'], ans: 0 },
+                    { q: 'while циклінің денесінде break орындалса, else блогы орындалады ма?', opts: ['Жоқ', 'Иә', 'Шарт бойынша'], ans: 0 },
+                    { q: 'while циклінде санауышты өсіруді ұмытсаңыз, не болады?', opts: ['Шексіз цикл', 'Цикл бір рет орындалады', 'Қате', 'Ештеңе'], ans: 0 },
+                    { q: 'while x<10: x+=2 (x=0) цикл неше рет орындалады?', opts: ['5', '4', '6', '10'], ans: 0 }
+                ],
+                for: [
+                    { q: 'for i in range(3): неше рет?', opts: ['2', '3', '4', '1'], ans: 1 },
+                    { q: 'range(2,5) қандай сандар?', opts: ['2,3,4', '2,3,4,5', '1,2,3', '3,4,5'], ans: 0 },
+                    { q: 'range(0,10,2) не береді?', opts: ['0,2,4,6,8', '1,3,5,7,9', '0,1,2...', '10,12...'], ans: 0 },
+                    { q: 'Тізімді аралау:', opts: ['for x in list', 'for x=0 to n', 'while x in', 'loop list'], ans: 0 },
+                    { q: 'Кірістірілген цикл:', opts: ['Ішінде екінші', 'Қатар екі', 'Цикл жоқ', 'Бір цикл'], ans: 0 },
+                    { q: 'range(1,6,2) қандай сандар?', opts: ['1,3,5', '2,4,6', '1,2,3', '0,2,4'], ans: 0 },
+                    { q: 'for i in reversed(range(3)): print(i) — алғашқы шыққан сан?', opts: ['2', '0', '1', '3'], ans: 0 },
+                    { q: 'for циклінің ішінде for циклі болса, ол қалай аталады?', opts: ['Кірістірілген цикл', 'Сыртқы цикл', 'Қатар цикл'], ans: 0 },
+                    { q: 'for i in range(1,4): print(i) нәтижесінде неше сан шығады?', opts: ['3', '4', '1', '2'], ans: 0 },
+                    { q: 'range(5,0,-1) қандай сандар?', opts: ['5,4,3,2,1', '1,2,3,4,5', '5,4,3,2', '0,1,2,3,4'], ans: 0 }
+                ],
+                else: [
+                    { q: 'for...else қашан орындалады?', opts: ['break болса', 'break болмаса', 'Әрқашан', 'Ешқашан'], ans: 1 },
+                    { q: 'break болса else орындала ма?', opts: ['Иә', 'Жоқ'], ans: 1 },
+                    { q: 'Іздеу алгоритмінде else:', opts: ['Табылды', 'Табылмады', 'Қате', 'Белгісіз'], ans: 1 },
+                    { q: 'if жазылмай, тек else қолдануға болады ма?', opts: ['Жоқ', 'Иә'], ans: 0 },
+                    { q: 'if-elif-else тізбегінде elif саны шектеулі ме?', opts: ['Шектеусіз', 'Ең көбі 5', 'Тек 1'], ans: 0 },
+                    { q: 'while...else блогы қашан орындалады?', opts: ['Цикл breakсыз аяқталса', 'Цикл break арқылы тоқтаса', 'Әрқашан'], ans: 0 },
+                    { q: 'for...else блогы break кезінде орындалады ма?', opts: ['Жоқ', 'Иә'], ans: 0 },
+                    { q: 'Келесі кодта else орындалады ма: for i in range(5): if i==3: break; else: print("соңы")', opts: ['Орындалмайды', 'Орындалады'], ans: 0 },
+                    { q: 'Тізімнен элемент іздеуде else блогы қандай жағдайда орындалады?', opts: ['Элемент табылмаса', 'Элемент табылса', 'Әрқашан'], ans: 0 },
+                    { q: 'if-else конструкциясында else-тен кейін жаңа шарт жазуға болады ма?', opts: ['Жоқ, elif керек', 'Иә'], ans: 0 }
+                ],
+                break: [
+                    { q: 'break не істейді?', opts: ['Тоқтатады', 'Өтеді', 'Ештеңе', 'Қайталайды'], ans: 0 },
+                    { q: 'continue не істейді?', opts: ['Тоқтатады', 'Өткізеді', 'Ештеңе', 'Шығарады'], ans: 1 },
+                    { q: 'pass не үшін?', opts: ['Бос орын', 'Тоқтатады', 'Қате', 'Шығарады'], ans: 0 },
+                    { q: 'break операторы тек қана цикл ішінде қолданылады ма?', opts: ['Иә', 'Жоқ'], ans: 0 },
+                    { q: 'continue операторы циклді тоқтатады ма?', opts: ['Жоқ, өткізеді', 'Иә, тоқтатады'], ans: 0 },
+                    { q: 'Кірістірілген циклде break тек ішкі циклді тоқтатады ма?', opts: ['Иә', 'Жоқ, барлығын'], ans: 0 },
+                    { q: '"pass" операторы не істейді?', opts: ['Ештеңе', 'Тоқтатады', 'Өткізеді'], ans: 0 },
+                    { q: 'continue операторы циклдің шартын қайта тексереді ме?', opts: ['Иә', 'Жоқ'], ans: 0 },
+                    { q: 'break орнына return қолдануға болады ма функция ішінде?', opts: ['Иә', 'Жоқ'], ans: 0 },
+                    { q: 'for i in range(5): if i==2: continue; print(i) — 2 саны шығады ма?', opts: ['Шықпайды', 'Шығады'], ans: 0 }
+                ],
+                trace: [
+                    { q: 'Трассировка деген?', opts: ['Қадамдап талдау', 'Қате іздеу', 'Жылдамдық', 'Компиляция'], ans: 0 },
+                    { q: 'Трассировка кестесінде не болады?', opts: ['Айнымалы мәндері', 'Тек цикл саны', 'Функция атаулары', 'Кітапхана'], ans: 0 },
+                    { q: 'Трассировка не үшін?', opts: ['Кодты түсіну', 'Жылдамдық', 'Жады', 'Дизайн'], ans: 0 },
+                    { q: 'Трассировка кестесінде әдетте не көрсетіледі?', opts: ['Қадам, айнымалы мәндері', 'Тек код', 'Тек шарт'], ans: 0 },
+                    { q: 'Трассировка жасаудың мақсаты?', opts: ['Кодтың жұмысын түсіну', 'Бағдарламаны жылдамдату', 'Кодты компиляциялау'], ans: 0 },
+                    { q: 'Трассировка кезінде шарттың мәні қалай жазылады?', opts: ['True немесе False', 'Санмен', 'Мәтінмен'], ans: 0 },
+                    { q: 'while циклін трассировкалағанда әр итерация алдында нені тексереміз?', opts: ['Шартты', 'Цикл денесін', 'Санауышты'], ans: 0 },
+                    { q: 'for циклін трассировкалағанда неше қадам болатыны белгілі ме?', opts: ['Иә, тізбек ұзындығына тең', 'Жоқ, белгісіз'], ans: 0 },
+                    { q: 'Трассировка кестесінде "Қадам" бағаны нені көрсетеді?', opts: ['Орындалу ретін', 'Айнымалы атын'], ans: 0 },
+                    { q: 'Трассировка нәтижесінде қандай мәлімет аламыз?', opts: ['Айнымалылардың соңғы мәндерін', 'Бастапқы кодты'], ans: 0 }
+                ]
+            };
+
+            // ============ TASKS (толық, интерактивті) ============
+            const TASKS = {
+                easy: [
+                    { id: 1, type: 'code_output', q: '<code>print("Сәлем, Әлем!")</code> — экранға не шығады?', answer: 'Сәлем, Әлем!' },
+                    { id: 2, type: 'test', q: 'Python-да бүтін сан типі қалай аталады?', opts: ['int', 'float', 'str', 'bool'], ans: 0 },
+                    { id: 3, type: 'fill_blank', q: '<code>___ = "Айша"</code> — айнымалы жариялау үшін бос орынға не жазылады? (бір сөз)', answer: 'name' },
+                    { id: 4, type: 'calculation', q: '<code>5 + 3 * 2</code> өрнегінің мәні нешеге тең?', answer: '11' },
+                    { id: 5, type: 'matching', q: 'Сәйкестендір: <b>str</b> → ?', opts: ['мәтін', 'бүтін сан', 'бөлшек сан', 'логика'], ans: 0 },
+                    { id: 6, type: 'find_error', q: '<code>print(Сәлем)</code> — қате неде? (бір сөзбен)', answer: 'тырнақша' },
+                    { id: 7, type: 'definition', q: 'Мәліметтерді сақтайтын контейнер қалай аталады?', answer: 'айнымалы' },
+                    { id: 8, type: 'code_output', q: '<code>print(2 ** 4)</code> нәтижесі?', answer: '16' },
+                    { id: 9, type: 'order', q: 'Ретімен орналастыр: (1) print, (2) x=5, (3) x+=1. x=5-тен кейін не?', answer: '3' },
+                    { id: 10, type: 'test', q: '<code>10 // 3</code> нәтижесі?', opts: ['3', '3.33', '1', '30'], ans: 0 },
+                    { id: 11, type: 'logic', q: '<code>True and False</code> мәні қандай?', answer: 'False' },
+                    { id: 12, type: 'code_output', q: '<code>print("Py" + "thon")</code> не шығарады?', answer: 'Python' },
+                    { id: 13, type: 'fill_blank', q: '<code>print(7 ___ 3)</code> — қалдықты табу операторы', answer: '%' },
+                    { id: 14, type: 'calculation', q: '<code>12 % 5</code> мәні?', answer: '2' },
+                    { id: 15, type: 'scenario', q: 'Жағдаят: Айша 3 алма сатып алды, әр алма 100 теңгеден. Ол сатушыға 500 теңге берді. Айшаға қанша теңге қайтару керек?', answer: '200' }
+                ],
+                medium: [
+                    { id: 16, type: 'test', q: '<code>for i in range(1, 4):</code> неше рет орындалады?', opts: ['2', '3', '4', '1'], ans: 1 },
+                    { id: 17, type: 'code_output', q: '<code>sum = 0\nfor i in range(1, 6):\n    sum += i\nprint(sum)</code>', answer: '15' },
+                    { id: 18, type: 'fill_blank', q: '<code>while x ___ 10:\n    x += 1</code> — x 10-нан кіші болғанда жұмыс істейтін шарт', answer: '<' },
+                    { id: 19, type: 'crossword', q: 'Циклді бұзатын оператор (5 әріп)', answer: 'break' },
+                    { id: 20, type: 'find_error', q: '<code>for i in range(5)\nprint(i)</code> — қандай тыныс белгісі жетіспейді?', answer: 'қос нүкте' },
+                    { id: 21, type: 'calculation', q: '<code>1 + 2 + ... + 10</code> қосындысы неше?', answer: '55' },
+                    { id: 22, type: 'definition', q: 'Белгілі бір шарт ақиқат болғанша қайталанатын цикл?', answer: 'while' },
+                    { id: 23, type: 'matching', q: 'Сәйкестендір: <b>continue</b> → ?', opts: ['келесіге өту', 'циклден шығу', 'қате шығару', 'тоқтату'], ans: 0 },
+                    { id: 24, type: 'test', q: '<code>range(2, 10, 3)</code> қандай сандар береді?', opts: ['2,5,8', '2,5,8,11', '3,6,9', '2,4,6,8'], ans: 0 },
+                    { id: 25, type: 'code_output', q: '<code>for i in "ABC":\n    print(i, end="")</code>', answer: 'ABC' },
+                    { id: 26, type: 'logic', q: '<code>not (5 > 3)</code> мәні?', answer: 'False' },
+                    { id: 27, type: 'order', q: 'Цикл құру реті: (1) шарт жазу, (2) санауышты өзгерту, (3) бастапқы мән. Ең соңында не?', answer: '2' },
+                    { id: 28, type: 'scenario', q: 'Жағдаят: Цикл 1-ден 10-ға дейінгі сандарды шығарады. Егер сан 3-ке бөлінсе, оның орнына "Fizz" шығады. 3 санының орнына не шығады?', answer: 'Fizz' },
+                    { id: 29, type: 'tracing', q: '<code>for i in range(3): print(i)</code> — соңғы шыққан сан?', answer: '2' },
+                    { id: 30, type: 'code_output', q: '<code>x = 10\nif x % 2 == 0:\n    print("жұп")\nelse:\n    print("тақ")</code>', answer: 'жұп' }
+                ],
+                hard: [
+                    { id: 31, type: 'test', q: '<code>for i in range(3):\n    for j in range(2):\n        pass</code> — жалпы неше итерация?', opts: ['5', '6', '3', '2'], ans: 1 },
+                    { id: 32, type: 'code_output', q: '<code>total = 0\nfor i in range(1, 6):\n    if i % 2 == 0:\n        total += i\nprint(total)</code>', answer: '6' },
+                    { id: 33, type: 'tracing', q: 'Трассировка кестесі қай кезде қолданылады? (бір сөз)', answer: 'талдау' },
+                    { id: 34, type: 'fill_blank', q: '<code>fruits = ["алма","банан"]\nfor fruit in fruits:\n    if fruit ___ "шие":\n        print(fruit)</code> — "шие" еместерді шығару', answer: '!=' },
+                    { id: 35, type: 'crossword', q: 'Кодты қадамдап тексеру әдісі (10 әріп)', answer: 'трассировка' },
+                    { id: 36, type: 'calculation', q: '<code>5! (факториал)</code> мәні?', answer: '120' },
+                    { id: 37, type: 'find_error', q: '<code>while True\n    print("шексіз")</code> — жетіспейтін тыныс белгі', answer: 'қос нүкте' },
+                    { id: 38, type: 'code_output', q: '<code>for i in range(5):\n    if i == 2:\n        continue\n    print(i, end=" ")</code>', answer: '0 1 3 4' },
+                    { id: 39, type: 'definition', q: 'Цикл толық аяқталғанда ғана орындалатын блок?', answer: 'else' },
+                    { id: 40, type: 'logic', q: '<code>5 > 3 or 2 < 1</code> мәні?', answer: 'True' },
+                    { id: 41, type: 'test', q: '<code>list(map(lambda x: x**2, [1,2,3]))</code> нәтижесі?', opts: ['[1,4,9]', '[2,4,6]', '[1,2,3]', '[1,8,27]'], ans: 0 },
+                    { id: 42, type: 'code_output', q: '<code>n = 12345\ns = 0\nwhile n > 0:\n    s += n % 10\n    n //= 10\nprint(s)</code>', answer: '15' },
+                    { id: 43, type: 'order', q: 'Алгоритм қадамдарын ретте: (1) нәтиже шығару, (2) бастапқы мән, (3) цикл, (4) шарт тексеру. Ең бірінші?', answer: '2' },
+                    { id: 44, type: 'scenario', q: 'Жағдаят: Пайдаланушы пароль енгізеді. Пароль "qwerty" болса, "Кіру рұқсат" шығады. Егер пароль "12345" болса, "Кіру рұқсат" шыға ма?', answer: 'Жоқ' },
+                    { id: 45, type: 'code_output', q: '<code>a = 0\nfor i in range(1, 4):\n    a += i*2\nprint(a)</code>', answer: '12' }
+                ]
+            };
+                        // ============ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ============
+            let currentUser = null;
+            let currentPage = 'dashboard';
+            let currentTopic = 'intro';
+            let currentTheoryStep = 1;
+            let quizSubmitted = false;
+            let userAnswers = [];
+            let sudokuBoard = [];
+            let sudokuSolution = [];
+            let sudokuDifficulty = 'easy';
+            let kvestScore = 0;
+            let kvestStep = 0;
+            let kvestData = null;
+            let memoryCards = [];
+            let memoryFlipped = [];
+            let memoryMatched = [];
+            let memoryLocked = false;
+
+            // ============ ФУНКЦИИ ХРАНИЛИЩА ============
+            function loadUsers() { return JSON.parse(localStorage.getItem(STORAGE.USERS)) || []; }
+            function saveUsers(u) { localStorage.setItem(STORAGE.USERS, JSON.stringify(u)); }
+            function getProgress() { return JSON.parse(localStorage.getItem(STORAGE.PROGRESS)) || { intro:0, while:0, for:0, else:0, break:0, trace:0 }; }
+            function saveProgress(p) { localStorage.setItem(STORAGE.PROGRESS, JSON.stringify(p)); }
+            function loadCurrentUser() {
+                let id = localStorage.getItem(STORAGE.CURRENT);
+                if (!id) return null;
+                return loadUsers().find(u => u.id == id) || null;
+            }
+            function setCurrentUser(id) {
+                if (id) localStorage.setItem(STORAGE.CURRENT, id);
+                else localStorage.removeItem(STORAGE.CURRENT);
+            }
+
+            // ============ НАВИГАЦИЯ ============
+            function navigate(page) {
+                if (!currentUser && page !== 'login' && page !== 'register') page = 'login';
+                currentPage = page;
+                renderSidebar();
+                renderPage();
+            }
+            function renderSidebar() {
+                document.querySelectorAll('#sidebarNav .sidebar-item').forEach(el => {
+                    el.classList.toggle('active', el.dataset.page === currentPage);
+                });
+            }
+            function renderPage() {
+                let container = document.getElementById('mainContent');
+                if (!currentUser && currentPage !== 'login' && currentPage !== 'register') currentPage = 'login';
+                switch (currentPage) {
+                    case 'login': renderLogin(container); break;
+                    case 'register': renderRegister(container); break;
+                    case 'dashboard': renderDashboard(container); break;
+                    case 'lessons': renderLessonsList(container); break;
+                    case 'topic': renderTopicView(container); break;
+                    case 'tasks': renderTasks(container); break;
+                    case 'games': renderGamesHub(container); break;
+                    case 'glossary': renderGlossary(container); break;
+                    case 'finaltest': renderFinalTest(container); break;
+                    case 'profile': renderProfile(container); break;
+                    case 'author': renderAuthor(container); break;
+                    default: renderDashboard(container);
+                }
+            }
+
+            // ============ АВТОРИЗАЦИЯ ============
+            function renderLogin(container) {
+                container.innerHTML = `
+                <div class="card" style="max-width:440px;margin:2rem auto;">
+                  <div class="text-center"><h2 style="font-family:'Orbitron';">✨ PyStep</h2><p class="text-muted">Кіру</p></div>
+                  <div class="form-group"><label>Email</label><input class="form-input" id="loginEmail" placeholder="email@mail.kz" value="test@mail.kz"></div>
+                  <div class="form-group"><label>Құпия сөз</label><input class="form-input" type="password" id="loginPass" placeholder="••••" value="123"></div>
+                  <button class="btn btn-primary" style="width:100%" id="loginBtn">Кіру</button>
+                  <p class="text-center mt-2"><a href="#" id="goRegister">Тіркелу</a> | <a href="#" id="forgotPass">Құпия сөзді ұмыттыңыз ба?</a></p>
+                  <div id="forgotBlock" class="hidden mt-2">
+                    <input class="form-input" id="forgotEmail" placeholder="Email енгізіңіз">
+                    <button class="btn btn-outline btn-sm mt-1" id="sendResetBtn">Қалпына келтіру кодын жіберу</button>
+                    <input class="form-input mt-1" id="resetCode" placeholder="Код">
+                    <input class="form-input mt-1" type="password" id="newPass" placeholder="Жаңа құпия сөз">
+                    <button class="btn btn-success btn-sm mt-1" id="applyResetBtn">Қолдану</button>
+                  </div>
+                </div>`;
+                document.getElementById('loginBtn').onclick = () => {
+                    let email = document.getElementById('loginEmail').value.trim();
+                    let pass = document.getElementById('loginPass').value;
+                    let user = loadUsers().find(u => u.email === email && u.password === pass);
+                    if (user) { setCurrentUser(user.id); currentUser = user; navigate('dashboard'); } else alert('Email немесе құпия сөз қате');
+                };
+                document.getElementById('goRegister').onclick = e => { e.preventDefault(); navigate('register'); };
+                document.getElementById('forgotPass').onclick = e => { e.preventDefault(); document.getElementById('forgotBlock').classList.toggle('hidden'); };
+            }
+
+            function renderRegister(container) {
+                container.innerHTML = `
+                <div class="card" style="max-width:440px;margin:2rem auto;">
+                  <div class="text-center"><h2>Тіркелу</h2></div>
+                  <div class="form-group"><label>Аты-жөні</label><input class="form-input" id="regName" placeholder="Жанеркем"></div>
+                  <div class="form-group"><label>Email</label><input class="form-input" type="email" id="regEmail" placeholder="email@mail.kz"></div>
+                  <div class="form-group"><label>Телефон</label><input class="form-input" id="regPhone" placeholder="+7..."></div>
+                  <div class="form-group"><label>Сынып</label><input class="form-input" type="number" id="regClass" value="8" placeholder="8"></div>
+                  <div class="form-group"><label>Құпия сөз</label><input class="form-input" type="password" id="regPass"></div>
+                  <button class="btn btn-primary" style="width:100%" id="regBtn">Тіркелу</button>
+                  <p class="text-center mt-2">Аккаунтыңыз бар ма? <a href="#" id="goLogin">Кіру</a></p>
+                </div>`;
+                document.getElementById('regBtn').onclick = () => {
+                    let name = document.getElementById('regName').value.trim();
+                    let email = document.getElementById('regEmail').value.trim();
+                    let phone = document.getElementById('regPhone').value.trim();
+                    let cls = document.getElementById('regClass').value;
+                    let pass = document.getElementById('regPass').value;
+                    if (!name || !email || !pass) return alert('Міндетті өрістерді толтырыңыз');
+                    let users = loadUsers();
+                    if (users.find(u => u.email === email)) return alert('Бұл email тіркелген');
+                    let newUser = { id: Date.now().toString(), name, email, phone, class: cls, password: pass, photo: '', points: 0 };
+                    users.push(newUser);
+                    saveUsers(users);
+                    setCurrentUser(newUser.id);
+                    currentUser = newUser;
+                    navigate('dashboard');
+                };
+                document.getElementById('goLogin').onclick = e => { e.preventDefault(); navigate('login'); };
+            }
+
+            // ============ DASHBOARD ============
+            function renderDashboard(container) {
+                let progress = getProgress();
+                let total = Object.values(progress).reduce((a, b) => a + b, 0) / 6;
+                container.innerHTML = `
+                <div class="card">
+                  <h2>Қош келдіңіз, ${currentUser.name}! 👋</h2>
+                  <div class="progress-bar"><div class="progress-fill" style="width:${total}%"></div></div>
+                  <p class="text-muted">Жалпы прогресс: ${Math.round(total)}%</p>
+                </div>
+                <div class="grid-3">
+                  <div class="card">
+                    <h3><i class="fas fa-users"></i> Кімдерге арналған?</h3>
+                    <p>Курс 8-сынып оқушыларына және Python-ды нөлден бастап үйренгісі келетін кез келген адамға арналған.</p>
+                  </div>
+                  <div class="card">
+                    <h3><i class="fas fa-graduation-cap"></i> Не үйренесіз?</h3>
+                    <ul style="list-style: none; padding:0;">
+                      <li>Python негіздері (айнымалылар, типтер, шарттар)</li>
+                      <li>Циклдер (while, for) және break/continue</li>
+                      <li>Алгоритм трассировкасы</li>
+                      <li>Шынайы өмірлік есептерді шешу</li>
+                    </ul>
+                  </div>
+                  <div class="card">
+                    <h3><i class="fas fa-star"></i> Ерекшеліктер</h3>
+                    <p>🎮 Ойындар, 📝 интерактивті тапсырмалар, 📜 қорытынды сертификат.</p>
+                  </div>
+                </div>`;
+            }
+
+            // ============ САБАҚТАР ============
+            function openTopic(topicId) {
+                currentTopic = topicId;
+                currentTheoryStep = 1;
+                quizSubmitted = false;
+                userAnswers = [];
+                navigate('topic');
+            }
+            function renderLessonsList(container) {
+                let progress = getProgress();
+                let h = '<h2>📚 Барлық сабақтар</h2><div class="grid-2">';
+                TOPIC_ORDER.forEach(id => {
+                    let p = progress[id] || 0;
+                    h += `
+                  <div class="topic-card ${p>=100?'completed':''}" onclick="openTopic('${id}')">
+                    <h3>${TOPIC_TITLES[id]}</h3>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${p}%"></div></div>
+                    <span class="badge ${p>=100?'badge-done':'badge-pending'}">${p>=100?'Аяқталды':p+'%'}</span>
+                  </div>`;
+                });
+                h += '</div>';
+                container.innerHTML = h;
+            }
+
+            function renderTopicView(container) {
+                let progress = getProgress();
+                let topicProgress = progress[currentTopic] || 0;
+                let steps = THEORY[currentTopic] || [];
+                let step = steps[currentTheoryStep - 1] || { text: '', code: '' };
+                let quiz = QUIZZES[currentTopic] || [];
+                container.innerHTML = `
+                <div class="card">
+                  <button class="btn btn-outline btn-sm mb-2" onclick="navigate('lessons')">← Сабақтарға оралу</button>
+                  <h2>${TOPIC_TITLES[currentTopic]}</h2>
+                  <div class="progress-bar"><div class="progress-fill" style="width:${topicProgress}%"></div></div>
+                  <div class="flex gap-1 flex-wrap mt-2">
+                    <button class="btn btn-sm btn-primary" id="btnTheory">📘 Теория</button>
+                    <button class="btn btn-sm btn-outline" id="btnTrainer">💻 Тренажер</button>
+                    <button class="btn btn-sm btn-outline" id="btnQuiz">📝 Тест</button>
+                    <button class="btn btn-sm btn-outline" id="btnVideo">🎬 Бейнесабақ</button>
+                  </div>
+                  <div id="topicContent" class="mt-3"></div>
+                </div>`;
+                let contentDiv = document.getElementById('topicContent');
+                renderTopicTheory(contentDiv, steps, step);
+                document.getElementById('btnTheory').onclick = () => renderTopicTheory(contentDiv, steps, step);
+                document.getElementById('btnTrainer').onclick = () => renderTopicTrainer(contentDiv);
+                document.getElementById('btnQuiz').onclick = () => renderTopicQuiz(contentDiv, quiz);
+                document.getElementById('btnVideo').onclick = () => renderTopicVideo(contentDiv);
+            }
+
+            function renderTopicTheory(container, steps, step) {
+                container.innerHTML = `
+                <div style="display:flex;gap:15px;flex-wrap:wrap;">
+                  <div style="flex:2;min-width:250px;">
+                    <p style="color:var(--primary);font-weight:700;">Қадам ${currentTheoryStep}/${steps.length}</p>
+                    <div class="theory-text" style="min-height:300px;">${step.text}</div>
+                    <div class="code-block">${step.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+                    <div class="flex gap-1 mt-2">
+                      <button class="btn btn-outline btn-sm" id="prevStep" ${currentTheoryStep===1?'disabled':''}>⬅️ Алдыңғы</button>
+                      <button class="btn btn-primary btn-sm" id="nextStep">Келесі ➡️</button>
+                    </div>
+                  </div>
+                  <div style="flex:1;min-width:200px;background:#faf9ff;border-radius:18px;padding:16px;">
+                    <h4 style="color:var(--primary);">💡 Жанеркем кеңесі</h4>
+                    <p class="text-muted">Әр қадамды мұқият оқы, кодты өзің жаз! 😊</p>
+                    <p class="text-muted mt-2">🎯 Оқу кезегі:<br>1. Теория<br>2. Тренажер<br>3. Тест</p>
+                  </div>
+                </div>`;
+                document.getElementById('prevStep').onclick = () => { if (currentTheoryStep > 1) { currentTheoryStep--; renderTopicView(document.getElementById('mainContent')); } };
+                document.getElementById('nextStep').onclick = () => { if (currentTheoryStep < steps.length) { currentTheoryStep++; renderTopicView(document.getElementById('mainContent')); } else alert('Теория аяқталды! Тест тапсырыңыз.'); };
+            }
+
+            function renderTopicVideo(container) {
+                let videos = {
+                    intro: [{ title: 'Python кіріспе', desc: 'Тіл негіздері', url: 'https://www.youtube.com/embed/...' }]
+                }[currentTopic] || [];
+                if (videos.length === 0) { container.innerHTML = '<p class="text-muted">Бұл тақырыпқа әзірге бейнесабақ қосылмаған.</p>'; return; }
+                let html = '<h3>🎬 Бейнесабақтар</h3>';
+                videos.forEach(v => html += `
+                    <div class="card" style="margin-bottom:1rem;">
+                        <h4>${v.title}</h4><p class="text-muted">${v.desc}</p>
+                        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:14px;">
+                            <iframe src="${v.url}" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>`);
+                container.innerHTML = html;
+            }
+
+            function renderTopicTrainer(container) {
+                container.innerHTML = `
+                <textarea class="form-input" id="codeInput" rows="8" style="font-family:var(--mono);">print("Сәлем, Python!")</textarea>
+                <button class="btn btn-primary mt-2" id="runCodeBtn">🚀 Іске қосу</button>
+                <div class="output-block" id="codeOutput">Нәтиже осында шығады...</div>`;
+                document.getElementById('runCodeBtn').onclick = () => {
+                    document.getElementById('codeOutput').textContent = simulatePython(document.getElementById('codeInput').value);
+                };
+            }
+
+            function simulatePython(code) {
+                try {
+                    if (code.includes('print(')) {
+                        let match = code.match(/print\(([^)]+)\)/);
+                        if (match) {
+                            let arg = match[1].trim();
+                            if (arg.startsWith('"') || arg.startsWith("'")) return arg.slice(1, -1);
+                            if (arg.includes('+')) {
+                                let parts = arg.split('+').map(p => p.trim().replace(/"/g, '').replace(/'/g, ''));
+                                return parts.join('');
+                            }
+                            return arg;
+                        }
+                    }
+                    return 'Python интерпретаторы қолжетімсіз. Кодты нақты PyCharm/IDLE-де іске қосыңыз.';
+                } catch (e) {
+                    return 'Қате: ' + e.message;
+                }
+            }
+
+            function renderTopicQuiz(container, quiz) {
+                if (quizSubmitted) { container.innerHTML = '<p class="text-success">✅ Тест тапсырылды. <a href="#" onclick="resetQuiz()">Қайта тапсыру</a></p>'; return; }
+                userAnswers = new Array(quiz.length).fill(null);
+                let h = '';
+                quiz.forEach((q,i) => {
+                    h += `<p><strong>${i+1}. ${q.q}</strong></p>`;
+                    q.opts.forEach((opt,j) => h += `<div class="test-option" data-q="${i}" data-o="${j}" onclick="selectAnswer(${i},${j})">${opt}</div>`);
+                });
+                h += '<button class="btn btn-primary mt-2" id="submitQuiz">Тестті аяқтау</button><div id="quizResult" class="mt-2"></div>';
+                container.innerHTML = h;
+                document.getElementById('submitQuiz').onclick = () => submitQuiz(quiz);
+            }
+
+            function selectAnswer(qIdx, oIdx) {
+                if (quizSubmitted) return;
+                document.querySelectorAll(`.test-option[data-q="${qIdx}"]`).forEach(el => el.classList.remove('selected'));
+                let el = document.querySelector(`.test-option[data-q="${qIdx}"][data-o="${oIdx}"]`);
+                if (el) el.classList.add('selected');
+                userAnswers[qIdx] = oIdx;
+            }
+
+            function submitQuiz(quiz) {
+                if (userAnswers.includes(null)) return alert('Барлық сұрақтарға жауап беріңіз!');
+                let correct = 0;
+                quiz.forEach((q,i) => { if (userAnswers[i]===q.ans) correct++; });
+                let progress = getProgress();
+                progress[currentTopic] = correct >= quiz.length*0.6 ? 100 : Math.min(50, progress[currentTopic]||0);
+                saveProgress(progress);
+                quizSubmitted = true;
+                document.getElementById('quizResult').innerHTML = `<p><strong>${correct}/${quiz.length}</strong> дұрыс. ${correct>=quiz.length*0.6?'✅ Өттіңіз!':'❌ Қайталап көріңіз.'}</p>`;
+            }
+
+            function resetQuiz() { quizSubmitted = false; userAnswers = []; renderTopicView(document.getElementById('mainContent')); }
+
+            // ============ TASKS ============
+            function renderTasks(container) {
+                let currentLevel = 'easy';
+                container.innerHTML = `
+                <h2>📋 Тапсырмалар</h2>
+                <div class="flex gap-1 mb-2">
+                  <button class="btn btn-sm btn-primary" id="lvlEasy">Оңай 🟢</button>
+                  <button class="btn btn-sm btn-outline" id="lvlMedium">Орташа 🟡</button>
+                  <button class="btn btn-sm btn-outline" id="lvlHard">Қиын 🔴</button>
+                </div>
+                <div id="taskList"></div>`;
+                let taskList = document.getElementById('taskList');
+
+                function loadLevel(level) {
+                    let tasks = TASKS[level] || [];
+                    let doneTasks = JSON.parse(localStorage.getItem(STORAGE.TASKS_DONE)) || [];
+                    let h = '';
+                    tasks.forEach(t => {
+                        let icon = {'code_output':'📤','test':'📝','fill_blank':'✍️','calculation':'🔢','crossword':'🧩','find_error':'🔍','definition':'📖','matching':'🔗','rebus':'🔎','logic':'🧠','order':'🔢','tracing':'📊','scenario':'🗣️'}[t.type]||'❓';
+                        let isDone = doneTasks.includes(t.id);
+                        h += `<div class="card" style="${isDone?'border-left:4px solid var(--success);':''}">
+                          <p>${icon} <strong>Тапсырма ${t.id}</strong> ${isDone?'<span class="badge badge-done">✓ Орындалды</span>':''}</p>
+                          <p style="font-size:0.95rem;">${t.q}</p>
+                          ${t.type==='test'||t.type==='matching'?renderTaskOptions(t):renderTaskInput(t)}
+                          <div id="taskResult${t.id}" class="mt-1"></div>
+                        </div>`;
+                    });
+                    taskList.innerHTML = h;
+                }
+
+                function renderTaskOptions(t) {
+                    let h = '';
+                    t.opts.forEach((o,i) => h += `<div class="test-option task-opt" data-task="${t.id}" data-o="${i}" onclick="selectTaskOption(${t.id},${i})">${String.fromCharCode(65+i)}) ${o}</div>`);
+                    h += `<button class="btn btn-sm btn-primary mt-1" onclick="checkTaskWithOption(${t.id},${t.ans})">Тексеру</button>`;
+                    return h;
+                }
+
+                function renderTaskInput(t) {
+                    let placeholder = t.type==='order'?'Рет нөмірін жазыңыз':'Жауабыңызды жазыңыз';
+                    return `<input class="form-input" id="taskInput${t.id}" placeholder="${placeholder}" autocomplete="off">
+                    <button class="btn btn-sm btn-primary mt-1" onclick="checkTaskAnswer(${t.id},'${currentLevel}')">Тексеру</button>`;
+                }
+
+                loadLevel('easy');
+                document.getElementById('lvlEasy').onclick = () => { currentLevel='easy'; updateLevelButtons('easy'); loadLevel('easy'); };
+                document.getElementById('lvlMedium').onclick = () => { currentLevel='medium'; updateLevelButtons('medium'); loadLevel('medium'); };
+                document.getElementById('lvlHard').onclick = () => { currentLevel='hard'; updateLevelButtons('hard'); loadLevel('hard'); };
+
+                function updateLevelButtons(level) {
+                    ['easy','medium','hard'].forEach(l => {
+                        let btn = document.getElementById('lvl'+l.charAt(0).toUpperCase()+l.slice(1));
+                        btn.classList.toggle('btn-primary', l===level);
+                        btn.classList.toggle('btn-outline', l!==level);
+                    });
+                }
+
+                window.checkTaskAnswer = function(taskId, level) {
+                    let task = TASKS[level].find(t=>t.id===taskId);
+                    if (!task) return;
+                    let ans = document.getElementById('taskInput'+taskId)?.value?.trim()||'';
+                    let correct = ans.toLowerCase()===task.answer.toLowerCase();
+                    document.getElementById('taskResult'+taskId).innerHTML = correct ? '<span class="text-success">✅ Дұрыс! 🎉</span>' : `<span class="text-danger">❌ Қате. Дұрыс жауап: <b>${task.answer}</b></span>`;
+                    if (correct) markTaskDone(taskId, currentLevel);
+                };
+
+                window.checkTaskWithOption = function(taskId, correctAns) {
+                    let ans = window['_selectedOpt_'+taskId];
+                    if (ans===undefined) return alert('Нұсқаны таңдаңыз!');
+                    let correct = ans===correctAns;
+                    document.getElementById('taskResult'+taskId).innerHTML = correct ? '<span class="text-success">✅ Дұрыс! 🎉</span>' : '<span class="text-danger">❌ Қате.</span>';
+                    if (correct) markTaskDone(taskId, currentLevel);
+                };
+
+                window.selectTaskOption = function(taskId, optIndex) {
+                    document.querySelectorAll(`.task-opt[data-task="${taskId}"]`).forEach(el=>el.classList.remove('selected'));
+                    let el = document.querySelector(`.task-opt[data-task="${taskId}"][data-o="${optIndex}"]`);
+                    if (el) el.classList.add('selected');
+                    window['_selectedOpt_'+taskId] = optIndex;
+                };
+
+                function markTaskDone(taskId, level) {
+                    let done = JSON.parse(localStorage.getItem(STORAGE.TASKS_DONE)) || [];
+                    if (!done.includes(taskId)) { done.push(taskId); localStorage.setItem(STORAGE.TASKS_DONE, JSON.stringify(done)); }
+                    setTimeout(() => loadLevel(level), 600);
+                }
+            }
+
+        
+
+            // ============ ОЙЫНДАР (толық) ============
+            function renderGamesHub(container) {
+                container.innerHTML = `
+                <h2>🎮 Ойындар</h2>
+                <div class="grid-3 mb-2">
+                  <div class="card text-center" onclick="startSudoku()" style="cursor:pointer;"><div style="font-size:3rem;">🧩</div><h3>Судоку</h3><button class="btn btn-primary btn-sm">Ойнау</button></div>
+                  <div class="card text-center" onclick="startKvest()" style="cursor:pointer;"><div style="font-size:3rem;">🗺️</div><h3>Квест</h3><button class="btn btn-primary btn-sm">Ойнау</button></div>
+                  <div class="card text-center" onclick="startPythonMemory()" style="cursor:pointer;"><div style="font-size:3rem;">🧠</div><h3>Python Memory</h3><button class="btn btn-primary btn-sm">Ойнау</button></div>
+                  <div class="card text-center" onclick="startCrosswordGame()" style="cursor:pointer;"><div style="font-size:3rem;">🔤</div><h3>Сөзжұмбақ</h3><button class="btn btn-primary btn-sm">Ойнау</button></div>
+                  <div class="card text-center" onclick="startSpeedQuiz()" style="cursor:pointer;"><div style="font-size:3rem;">⚡</div><h3>Кім жылдам?</h3><button class="btn btn-primary btn-sm">Ойнау</button></div>
+                  <div class="card text-center" onclick="startHangman()" style="cursor:pointer;"><div style="font-size:3rem;">💀</div><h3>Сөз табу</h3><button class="btn btn-primary btn-sm">Ойнау</button></div>
+                </div>
+                <div id="gameArena" class="card"></div>`;
+            }
+
+            // Судоку
+            window.startSudoku = function() {
+                let container = document.getElementById('gameArena');
+                container.innerHTML = `
+                <h3>🧩 Судоку – деңгей таңдаңыз</h3>
+                <div class="flex gap-1 justify-center">
+                  <button class="btn btn-outline btn-sm" onclick="setSudokuDifficulty('easy')">Оңай (көп сан берілген)</button>
+                  <button class="btn btn-outline btn-sm" onclick="setSudokuDifficulty('medium')">Орташа</button>
+                  <button class="btn btn-outline btn-sm" onclick="setSudokuDifficulty('hard')">Қиын (аз сан берілген)</button>
+                </div>
+                <div id="sudokuBoardContainer" class="mt-2"></div>`;
+            };
+            window.setSudokuDifficulty = function(level) {
+                sudokuDifficulty = level;
+                generateSudokuByLevel(level);
+                renderSudokuBoard();
+            };
+            function generateSudokuByLevel(level) {
+                sudokuSolution = [
+                    [5, 3, 4, 6, 7, 8, 9, 1, 2],
+                    [6, 7, 2, 1, 9, 5, 3, 4, 8],
+                    [1, 9, 8, 3, 4, 2, 5, 6, 7],
+                    [8, 5, 9, 7, 6, 1, 4, 2, 3],
+                    [4, 2, 6, 8, 5, 3, 7, 9, 1],
+                    [7, 1, 3, 9, 2, 4, 8, 5, 6],
+                    [9, 6, 1, 5, 3, 7, 2, 8, 4],
+                    [2, 8, 7, 4, 1, 9, 6, 3, 5],
+                    [3, 4, 5, 2, 8, 6, 1, 7, 9]
+                ];
+                sudokuBoard = JSON.parse(JSON.stringify(sudokuSolution));
+                let removeCount = level === 'easy' ? 30 : (level === 'medium' ? 45 : 55);
+                let cells = [];
+                for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) cells.push([r, c]);
+                for (let i = cells.length - 1; i > 0; i--) {
+                    let j = Math.floor(Math.random() * (i + 1));
+                    [cells[i], cells[j]] = [cells[j], cells[i]];
+                }
+                for (let i = 0; i < removeCount && i < cells.length; i++) {
+                    let [r, c] = cells[i];
+                    sudokuBoard[r][c] = 0;
+                }
+                selectedSudokuCell = null;
+            }
+            function renderSudokuBoard() {
+                let container = document.getElementById('sudokuBoardContainer');
+                let h = `<p class="text-muted">Деңгей: <strong>${sudokuDifficulty==='easy'?'Оңай':sudokuDifficulty==='medium'?'Орташа':'Қиын'}</strong>. Бос ұяшыққа басып, 1-9 санын енгізіңіз.</p>`;
+                h += '<div class="sudoku-grid">';
+                for (let r = 0; r < 9; r++) {
+                    for (let c = 0; c < 9; c++) {
+                        let val = sudokuBoard[r][c];
+                        let isGiven = val !== 0;
+                        h += `<div class="sudoku-cell ${isGiven ? 'given' : ''}" data-r="${r}" data-c="${c}" onclick="selectSudokuCell(this)">${isGiven ? val : ''}</div>`;
+                    }
+                }
+                h += '</div><div class="flex gap-1 mt-2 justify-between"><span id="sudokuMsg"></span><button class="btn btn-primary btn-sm" onclick="checkSudoku()">Тексеру</button></div>';
+                container.innerHTML = h;
+            }
+            window.selectSudokuCell = function(cell) {
+                if (cell.classList.contains('given')) return;
+                document.querySelectorAll('.sudoku-cell').forEach(c => c.classList.remove('selected-cell'));
+                cell.classList.add('selected-cell');
+                let r = parseInt(cell.dataset.r);
+                let c = parseInt(cell.dataset.c);
+                let val = prompt('1-9 арасындағы санды енгізіңіз:');
+                if (val && !isNaN(val) && val >= 1 && val <= 9) {
+                    let numVal = parseInt(val);
+                    cell.textContent = numVal;
+                    sudokuBoard[r][c] = numVal;
+                    cell.classList.remove('correct', 'wrong');
+                    if (sudokuBoard[r][c] === sudokuSolution[r][c]) cell.classList.add('correct');
+                    else cell.classList.add('wrong');
+                    checkSudokuComplete();
+                }
+            };
+            function checkSudokuComplete() {
+                let allFilled = true, allCorrect = true;
+                for (let r = 0; r < 9; r++) {
+                    for (let c = 0; c < 9; c++) {
+                        if (sudokuBoard[r][c] === 0) allFilled = false;
+                        if (sudokuBoard[r][c] !== sudokuSolution[r][c]) allCorrect = false;
+                    }
+                }
+                if (allFilled && allCorrect) {
+                    showCatAnimation();
+                    let scores = JSON.parse(localStorage.getItem(STORAGE.GAME_SCORES)) || {};
+                    scores.sudoku = (scores.sudoku || 0) + 1;
+                    localStorage.setItem(STORAGE.GAME_SCORES, JSON.stringify(scores));
+                }
+            }
+            window.checkSudoku = function() {
+                let correct = true;
+                for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (sudokuBoard[r][c] !== sudokuSolution[r][c]) correct = false;
+                document.getElementById('sudokuMsg').textContent = correct ? '✅ Дұрыс! Жарайсың!' : '❌ Кейбір ұяшықтар қате';
+                if (correct) { showCatAnimation(); let scores = JSON.parse(localStorage.getItem(STORAGE.GAME_SCORES)) || {}; scores.sudoku = (scores.sudoku || 0) + 1; localStorage.setItem(STORAGE.GAME_SCORES, JSON.stringify(scores)); }
+            };
+            function showCatAnimation() {
+                let existing = document.querySelector('.cat-animation-container');
+                if (existing) existing.remove();
+                let animDiv = document.createElement('div');
+                animDiv.className = 'cat-animation-container';
+                animDiv.innerHTML = '<span class="dancing-cat">🐱</span><span class="congrats-text">🎉 Жарайсың! Судоку шешілді!</span>';
+                document.body.appendChild(animDiv);
+                setTimeout(() => { animDiv.remove(); }, 3000);
+            }
+
+            // Квест (заглушка)
+            window.startKvest = function() {
+    kvestStep = 0;
+    kvestScore = 0;
+    kvestData = [
+        { type: 'test', question: 'Python-да экранға шығару функциясы қалай аталады?',
+          opts: ['print', 'input', 'scan', 'echo'], answer: 0 },
+        { type: 'input', question: '2**4 нешеге тең?', answer: '16' },
+        { type: 'test', question: 'Циклді бұзатын оператор?',
+          opts: ['break', 'continue', 'pass', 'exit'], answer: 0 },
+        { type: 'fill', question: 'Мәтін типі (латынша 3 әріп)', answer: 'str' },
+        { type: 'input', question: 'range(3) берген сандардың соңғысы неше?', answer: '2' },
+        { type: 'test', question: 'Төмендегілердің қайсысы логикалық оператор?',
+          opts: ['and', '+', '**', '/'], answer: 0 },
+        { type: 'fill', question: '"Сәлем" деген жолды шығару үшін қандай функция қолданылады? (ағылшынша)', answer: 'print' },
+        { type: 'input', question: '10 // 3 нешеге тең?', answer: '3' }
+    ];
+    renderKvest();
+};
+
+function renderKvest() {
+    let arena = document.getElementById('gameArena');
+    if (kvestStep >= kvestData.length) {
+        arena.innerHTML = `
+            <h3>🗺️ Квест аяқталды!</h3>
+            <p>Сіз барлық ${kvestData.length} кезеңнен өттіңіз.</p>
+            <p>Жалпы ұпай: <strong>${kvestScore} / ${kvestData.length}</strong></p>
+            <button class="btn btn-primary" onclick="startKvest()">Қайта ойнау</button>`;
+        // ұпайды сақтау (профильде көрсетіледі)
+        let scores = JSON.parse(localStorage.getItem(STORAGE.GAME_SCORES)) || {};
+        scores.kvest = (scores.kvest || 0) + kvestScore;
+        localStorage.setItem(STORAGE.GAME_SCORES, JSON.stringify(scores));
+        return;
+    }
+    let q = kvestData[kvestStep];
+    let html = `<h3>Квест кезеңі ${kvestStep + 1} / ${kvestData.length}</h3>
+                <p style="font-size:1.1rem;"><strong>${q.question}</strong></p>`;
+    if (q.type === 'test') {
+        q.opts.forEach((opt, i) => {
+            html += `<div class="test-option" onclick="checkKvestTest(${i}, ${q.answer})">${String.fromCharCode(65 + i)}) ${opt}</div>`;
+        });
+    } else {
+        html += `<input class="form-input" id="kvestInput" placeholder="Жауабыңыз">
+                 <button class="btn btn-primary btn-sm mt-2" onclick="checkKvestInput('${q.answer.replace(/'/g, "\\'")}')">Жібер</button>`;
+    }
+    html += `<p class="mt-2">🗺️ Ұпай: ${kvestScore}</p>`;
+    arena.innerHTML = html;
+}
+
+window.checkKvestTest = function(selected, correct) {
+    if (selected === correct) {
+        kvestScore++;
+        alert('✅ Дұрыс!');
+    } else {
+        alert('❌ Қате. Дұрыс жауап: ' + kvestData[kvestStep].opts[correct]);
+    }
+    kvestStep++;
+    renderKvest();
+};
+
+window.checkKvestInput = function(correctAnswer) {
+    let input = document.getElementById('kvestInput');
+    if (!input) return;
+    let userAnswer = input.value.trim().toLowerCase();
+    if (userAnswer === correctAnswer.toLowerCase()) {
+        kvestScore++;
+        alert('✅ Дұрыс!');
+    } else {
+        alert('❌ Қате. Дұрыс жауап: ' + correctAnswer);
+    }
+    kvestStep++;
+    renderKvest();
+};
+            window.startPythonMemory = function() {
+    // Терминдер мен анықтамалар жұптары
+    const pairs = [
+        { term: 'print', def: 'экранға шығару' },
+        { term: 'while', def: 'шартты цикл' },
+        { term: 'for', def: 'тізбек циклі' },
+        { term: 'break', def: 'тоқтату' },
+        { term: 'int', def: 'бүтін сан' },
+        { term: 'str', def: 'мәтін' },
+        { term: 'list', def: 'тізім' },
+        { term: 'range', def: 'сандар тізбегі' }
+    ];
+    memoryCards = [];
+    pairs.forEach((pair, idx) => {
+        memoryCards.push({ id: idx * 2, pairId: idx, text: pair.term, type: 'term', flipped: false, matched: false });
+        memoryCards.push({ id: idx * 2 + 1, pairId: idx, text: pair.def, type: 'def', flipped: false, matched: false });
+    });
+    // Араластыру
+    for (let i = memoryCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [memoryCards[i], memoryCards[j]] = [memoryCards[j], memoryCards[i]];
+    }
+    memoryFlipped = [];
+    memoryMatched = [];
+    memoryLocked = false;
+    renderMemoryBoard();
+};
+
+function renderMemoryBoard() {
+    let arena = document.getElementById('gameArena');
+    let html = '<h3>🧠 Python Memory</h3><p class="text-muted">Термин мен анықтамасын сәйкестендіріңіз</p>';
+    html += '<div class="memory-grid">';
+    memoryCards.forEach((card, index) => {
+        let cls = 'memory-card';
+        if (card.matched) cls += ' matched';
+        else if (card.flipped) cls += ' flipped';
+        html += `<div class="${cls}" onclick="flipMemoryCard(${index})">${card.flipped || card.matched ? card.text : '?'}</div>`;
+    });
+    html += '</div>';
+    if (memoryMatched.length === memoryCards.length && memoryCards.length > 0) {
+        html += '<p class="text-success mt-3">🎉 Барлық жұптар табылды! Жарайсың!</p>';
+        let scores = JSON.parse(localStorage.getItem(STORAGE.GAME_SCORES)) || {};
+        scores.memory = (scores.memory || 0) + 1;
+        localStorage.setItem(STORAGE.GAME_SCORES, JSON.stringify(scores));
+    }
+    arena.innerHTML = html;
+}
+
+window.flipMemoryCard = function(index) {
+    if (memoryLocked) return;
+    let card = memoryCards[index];
+    if (card.flipped || card.matched) return;
+    card.flipped = true;
+    memoryFlipped.push(index);
+    renderMemoryBoard();
+    if (memoryFlipped.length === 2) {
+        memoryLocked = true;
+        const [idx1, idx2] = memoryFlipped;
+        const card1 = memoryCards[idx1];
+        const card2 = memoryCards[idx2];
+        if (card1.pairId === card2.pairId && card1.type !== card2.type) {
+            // Жұп дұрыс
+            card1.matched = true;
+            card2.matched = true;
+            memoryMatched.push(idx1, idx2);
+            memoryFlipped = [];
+            memoryLocked = false;
+            renderMemoryBoard();
+        } else {
+            // Жұп қате – біраз уақыттан соң жабамыз
+            setTimeout(() => {
+                card1.flipped = false;
+                card2.flipped = false;
+                memoryFlipped = [];
+                memoryLocked = false;
+                renderMemoryBoard();
+            }, 800);
+        }
+    }
+};
+            window.startCrosswordGame = function() {
+                let arena = document.getElementById('gameArena');
+                const crosswordData = {
+                    grid: Array(10).fill().map(()=>Array(10).fill('')),
+                    words: [
+                        { row: 1, col: 1, dir: 'across', word: 'PYTHON', clue: 'Бағдарламалау тілі' },
+                        { row: 1, col: 1, dir: 'down', word: 'PRINT', clue: 'Экранға шығару функциясы' },
+                        { row: 3, col: 3, dir: 'across', word: 'WHILE', clue: 'Шартты цикл' },
+                        { row: 5, col: 5, dir: 'down', word: 'BREAK', clue: 'Циклді тоқтату' }
+                    ]
+                };
+                let h = '<h3>🔤 Python Сөзжұмбағы</h3>';
+                h += `<div class="crossword-grid" style="grid-template-columns: repeat(10, 40px);">`;
+                for (let r=0; r<10; r++) {
+                    for (let c=0; c<10; c++) {
+                        let letter = '';
+                        crosswordData.words.forEach(w => {
+                            if (w.dir==='across' && r===w.row && c>=w.col && c<w.col+w.word.length) letter = w.word[c-w.col];
+                            if (w.dir==='down' && c===w.col && r>=w.row && r<w.row+w.word.length) letter = w.word[r-w.row];
+                        });
+                        if (letter) h += `<div class="crossword-cell"><input maxlength="1" data-r="${r}" data-c="${c}" value=""></div>`;
+                        else h += `<div class="crossword-cell black"></div>`;
+                    }
+                }
+                h += '</div><div class="crossword-clues mt-2">';
+                crosswordData.words.forEach((w,i) => h += `<p><b>${i+1}.</b> ${w.clue} (${w.word.length} әріп, ${w.dir==='across'?'көлденең':'тігінен'})</p>`);
+                h += '</div><button class="btn btn-primary mt-2" onclick="checkCrossword()">Тексеру</button><span id="crosswordMsg" class="text-success ms-2"></span>';
+                arena.innerHTML = h;
+                window.checkCrossword = function() {
+                    let correct = true;
+                    crosswordData.words.forEach(w => {
+                        for (let i=0; i<w.word.length; i++) {
+                            let r = w.dir==='across'? w.row : w.row+i;
+                            let c = w.dir==='across'? w.col+i : w.col;
+                            let input = document.querySelector(`.crossword-cell input[data-r="${r}"][data-c="${c}"]`);
+                            if (input && input.value.toUpperCase() !== w.word[i]) correct = false;
+                        }
+                    });
+                    document.getElementById('crosswordMsg').textContent = correct ? '✅ Барлығы дұрыс! 🎉' : '❌ Кейбір әріптер қате';
+                };
+            };
+            window.startSpeedQuiz = function() {
+                let arena = document.getElementById('gameArena');
+                let questions = [
+                    { q: 'Python авторы?', a: 'Гвидо' },
+                    { q: 'Экранға шығару функциясы?', a: 'print' },
+                    { q: 'Циклді тоқтату операторы?', a: 'break' },
+                    { q: 'Мәтін типі (3 әріп)?', a: 'str' },
+                    { q: 'range(3) неше сан береді?', a: '3' }
+                ];
+                let qIndex = 0, score = 0, timeLeft = 30, timer;
+                arena.innerHTML = `
+                <h3>⚡ Кім жылдам?</h3>
+                <div id="speedQuestion"></div>
+                <input class="form-input" id="speedAnswer" placeholder="Жауапты енгіз...">
+                <button class="btn btn-primary mt-2" id="speedSubmit">Жібер</button>
+                <p class="mt-2">⏱️ Уақыт: <span id="speedTimer">30</span> сек</p>
+                <p>Ұпай: <span id="speedScore">0</span></p>
+                <div id="speedMsg"></div>`;
+                function showQuestion() {
+                    if (qIndex >= questions.length || timeLeft<=0) { endSpeedQuiz(); return; }
+                    document.getElementById('speedQuestion').innerHTML = `<strong>${qIndex+1}. ${questions[qIndex].q}</strong>`;
+                }
+                function endSpeedQuiz() {
+                    document.getElementById('speedMsg').innerHTML = `<span class="text-success">🎉 Ойын аяқталды! Ұпай: ${score}</span>`;
+                    let scores = JSON.parse(localStorage.getItem(STORAGE.GAME_SCORES)) || {};
+                    scores.speed = (scores.speed||0)+score;
+                    localStorage.setItem(STORAGE.GAME_SCORES, JSON.stringify(scores));
+                }
+                timer = setInterval(() => { timeLeft--; document.getElementById('speedTimer').textContent=timeLeft; if(timeLeft<=0){clearInterval(timer);endSpeedQuiz();} }, 1000);
+                showQuestion();
+                document.getElementById('speedSubmit').onclick = () => {
+                    let ans = document.getElementById('speedAnswer').value.trim().toLowerCase();
+                    if (ans === questions[qIndex].a.toLowerCase()) { score++; document.getElementById('speedScore').textContent=score; }
+                    qIndex++;
+                    document.getElementById('speedAnswer').value='';
+                    showQuestion();
+                };
+            };
+            window.startHangman = function() {
+                let arena = document.getElementById('gameArena');
+                let words = ['PYTHON', 'WHILE', 'BREAK', 'CONTINUE', 'STRING', 'INTEGER', 'RANGE'];
+                let word = words[Math.floor(Math.random()*words.length)];
+                let guessed = new Set();
+                let lives = 6;
+                arena.innerHTML = `
+                <h3>💀 Сөз табу (${lives} әрекет)</h3>
+                <p style="font-size:2rem; letter-spacing:8px;" id="hangmanWord">${word.split('').map(ch=>guessed.has(ch)?ch:'_').join(' ')}</p>
+                <p class="text-muted">Әріп енгізіңіз (ағылшын):</p>
+                <input class="form-input" id="hangmanInput" maxlength="1" style="width:80px;display:inline;">
+                <button class="btn btn-sm btn-primary" id="hangmanGuess">Тексеру</button>
+                <p class="mt-2" id="hangmanMsg"></p>
+                <p>Қалған әрекет: <span id="hangmanLives">${lives}</span></p>`;
+                document.getElementById('hangmanGuess').onclick = () => {
+                    let ch = document.getElementById('hangmanInput').value.toUpperCase();
+                    document.getElementById('hangmanInput').value = '';
+                    if (!ch || guessed.has(ch)) return;
+                    guessed.add(ch);
+                    if (!word.includes(ch)) lives--;
+                    document.getElementById('hangmanWord').textContent = word.split('').map(c=>guessed.has(c)?c:'_').join(' ');
+                    document.getElementById('hangmanLives').textContent = lives;
+                    if (lives<=0) { document.getElementById('hangmanMsg').innerHTML='<span class="text-danger">❌ Сіз жеңілдіңіз! Сөз: '+word+'</span>'; }
+                    else if (!word.split('').some(c=>!guessed.has(c))) { document.getElementById('hangmanMsg').innerHTML='<span class="text-success">✅ Жарайсың! Сөз табылды!</span>'; }
+                };
+            };
+
+            // ============ ГЛОССАРИЙ ============
+            function renderGlossary(container) {
+                let terms = [
+                    { t: 'Айнымалы', d: 'Мәліметтерді сақтайтын контейнер, атауы бар жад ұяшығы.', ex: 'x = 10' },
+                    { t: 'Алгоритм', d: 'Белгілі бір нәтижеге жету үшін орындалатын қадамдар тізбегі.', ex: 'Қадам 1: x-ті енгіз; Қадам 2: x-ті 2-ге көбейт; ...' },
+                    { t: 'Break', d: 'Циклді толығымен тоқтататын оператор.', ex: 'if i==5: break' },
+                    { t: 'Continue', d: 'Циклдің ағымдағы итерациясын өткізіп, келесі итерацияға көшіретін оператор.', ex: 'if i%2==0: continue' },
+                    { t: 'Else', d: 'Циклмен бірге қолданғанда цикл толық аяқталғанда орындалатын блок.', ex: 'for i in range(3): ... else: print("Аяқталды")' },
+                    { t: 'Float', d: 'Бөлшек сандар типі (ондық бөлшегі бар сан).', ex: '3.14, 2.5, -0.001' },
+                    { t: 'For', d: 'Тізбек элементтері бойынша қайталанатын цикл.', ex: 'for i in range(5): print(i)' },
+                    { t: 'If', d: 'Шартты оператор. Шарт ақиқат болса, код блогын орындайды.', ex: 'if x > 0: print("Оң сан")' },
+                    { t: 'Input', d: 'Пайдаланушыдан мәлімет енгізуді сұрайтын функция.', ex: 'name = input("Атыңыз: ")' },
+                    { t: 'Int', d: 'Бүтін сандар типі.', ex: '5, -10, 1000' },
+                    { t: 'Len', d: 'Тізім немесе жолдың ұзындығын (элементтер санын) қайтаратын функция.', ex: 'len("Python") → 6' },
+                    { t: 'Print', d: 'Экранға мәлімет шығаратын функция.', ex: 'print("Сәлем!")' },
+                    { t: 'Range', d: 'Сандар тізбегін жасайтын функция.', ex: 'range(1, 10, 2) → 1,3,5,7,9' },
+                    { t: 'Str', d: 'Мәтіндік жол (строка) типі.', ex: '"Python", \'Ақбота\'' },
+                    { t: 'While', d: 'Шарт ақиқат болғанша қайталанатын цикл.', ex: 'while x < 10: x += 1' },
+                    { t: 'Тізім', d: 'Реттелген элементтер жиынтығы, төртбұрышты жақшамен белгіленеді.', ex: '[1, 2, 3] немесе ["алма", "банан"]' },
+                    { t: 'Трассировка', d: 'Бағдарламаны қадамдап орындап, айнымалы мәндерін бақылау әдісі.', ex: 'Кесте толтыру: Қадам | x | шарт' }
+                ];
+                terms.sort((a,b) => a.t.localeCompare(b.t, 'kz'));
+                let h = '<h2>📖 Глоссарий</h2><p style="font-family:var(--serif);" class="text-muted">Барлық терминдер әліпби ретімен берілген.</p>';
+                let currentLetter = '';
+                terms.forEach(term => {
+                    let firstLetter = term.t.charAt(0).toUpperCase();
+                    if (firstLetter !== currentLetter) {
+                        currentLetter = firstLetter;
+                        h += `<div class="glossary-letter">${currentLetter}</div>`;
+                    }
+                    h += `<div class="glossary-term">
+                        <h4>${term.t}</h4>
+                        <p>${term.d}</p>
+                        <code style="font-family:var(--serif); background:#f0f0f0; padding:4px 10px; border-radius:6px; display:inline-block;">${term.ex}</code>
+                    </div>`;
+                });
+                container.innerHTML = h;
+            }
+
+            function renderFinalTest(container) {
+                let progress = getProgress();
+                let allDone = TOPIC_ORDER.every(id => (progress[id] || 0) >= 100);
+                let finalPassed = localStorage.getItem(STORAGE.FINAL_PASSED);
+                if (!allDone) {
+                    container.innerHTML = '<div class="card"><h2>🏁 Қорытынды тест</h2><p>Барлық 6 тақырыпты аяқтаңыз.</p></div>';
+                    return;
+                }
+                if (finalPassed) {
+                    container.innerHTML = '<div class="card"><h2>✅ Тест тапсырылған</h2><p>Сертификат профильде қолжетімді.</p></div>';
+                    return;
+                }
+                let questions = [
+                    { q: 'Python тілінің авторы?', opts: ['Гвидо', 'Деннис', 'Бьёрн'], ans: 0 },
+                    { q: 'while циклінің шарты қашан тексеріледі?', opts: ['Алдында', 'Кейін', 'Ортасында'], ans: 0 },
+                    { q: 'range(3) не береді?', opts: ['0,1,2', '1,2,3', '0,1,2,3'], ans: 0 },
+                    { q: 'break не істейді?', opts: ['Тоқтатады', 'Өткізеді', 'Қайталайды'], ans: 0 },
+                    { q: 'Трассировка дегеніміз?', opts: ['Қадамдап талдау', 'Қате іздеу', 'Жылдамдық өлшеу'], ans: 0 },
+                    { q: 'for...else қашан орындалады?', opts: ['break болмаса', 'break болса', 'Әрқашан'], ans: 0 },
+                    { q: 'continue не істейді?', opts: ['Келесіге өтеді', 'Тоқтатады', 'Шығарады'], ans: 0 },
+                    { q: 'len("Python") мәні?', opts: ['6', '5', '7'], ans: 0 },
+                    { q: '2**3 мәні?', opts: ['8', '6', '9'], ans: 0 },
+                    { q: 'list(range(2,5)) нәтижесі?', opts: ['[2,3,4]', '[2,3,4,5]', '[3,4,5]'], ans: 0 }
+                ];
+                let h = '<h2>🏁 Қорытынды тест</h2><p>10 сұрақ. 80%+ өту үшін керек.</p>';
+                questions.forEach((q, i) => {
+                    h += `<p><strong>${i+1}. ${q.q}</strong></p>`;
+                    q.opts.forEach((o, j) => h += `<div class="test-option" data-fq="${i}" data-fo="${j}" onclick="selectFinalAnswer(${i},${j})">${o}</div>`);
+                });
+                h += '<button class="btn btn-primary mt-2" id="submitFinal">Тестті аяқтау</button><div id="finalResult" class="mt-2"></div>';
+                container.innerHTML = h;
+                window.finalAnswers = new Array(10).fill(null);
+                window.selectFinalAnswer = function(q, o) {
+                    document.querySelectorAll(`.test-option[data-fq="${q}"]`).forEach(el => el.classList.remove('selected'));
+                    document.querySelector(`.test-option[data-fq="${q}"][data-fo="${o}"]`).classList.add('selected');
+                    window.finalAnswers[q] = o;
+                };
+                document.getElementById('submitFinal').onclick = () => {
+                    if (window.finalAnswers.includes(null)) return alert('Барлық сұраққа жауап беріңіз!');
+                    let correct = 0;
+                    questions.forEach((q, i) => { if (window.finalAnswers[i] === q.ans) correct++; });
+                    let percent = (correct / 10) * 100;
+                    let resultDiv = document.getElementById('finalResult');
+                    if (percent >= 80) {
+                        localStorage.setItem(STORAGE.FINAL_PASSED, 'true');
+                        resultDiv.innerHTML = `<p class="text-success">✅ ${percent}% — тест тапсырылды! Сертификат алуға болады. <a href="#" onclick="navigate('profile')">Профильге өту</a></p>`;
+                    } else {
+                        resultDiv.innerHTML = `<p class="text-danger">❌ ${percent}% — 80% жетпеді. Қайта тапсырыңыз. <a href="#" onclick="navigate('finaltest')">Қайталау</a></p>`;
+                    }
+                };
+            }
+
+            function renderProfile(container) {
+                let progress = getProgress();
+                let total = Object.values(progress).reduce((a, b) => a + b, 0) / 6;
+                let finalPassed = localStorage.getItem(STORAGE.FINAL_PASSED);
+                let tasksDone = JSON.parse(localStorage.getItem(STORAGE.TASKS_DONE)) || [];
+                let gameScores = JSON.parse(localStorage.getItem(STORAGE.GAME_SCORES)) || {};
+                let savedPhoto = localStorage.getItem('ps_photo_' + currentUser.id) || '';
+                container.innerHTML = `
+                <h2>👤 Профиль</h2>
+                <div class="card">
+                  <div class="flex align-center gap-1 flex-wrap" style="justify-content: space-between;">
+                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                      <div style="text-align: center;">
+                        <img id="profileAvatar" src="${savedPhoto || 'https://via.placeholder.com/120/7c3aed/ffffff?text=' + currentUser.name.charAt(0)}" 
+                             style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid #a78bfa; object-fit: cover;">
+                        <br>
+                        <label for="avatarUpload" class="btn btn-xs btn-outline mt-1" style="cursor:pointer;">📷 Фото жүктеу</label>
+                        <input type="file" id="avatarUpload" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
+                      </div>
+                      <div>
+                        <h3>${currentUser.name}</h3>
+                        <p class="text-muted">Сынып: ${currentUser.class||8} | Email: ${currentUser.email}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <button class="btn btn-outline btn-sm" onclick="navigate('dashboard')">📊 Дашборд</button>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <strong>📈 Жалпы прогресс: ${Math.round(total)}%</strong>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${total}%"></div></div>
+                  </div>
+                  <div class="grid-2 mt-3">
+                    <div class="card" style="background:#faf9ff;">
+                      <h4>📚 Тақырыптар</h4>
+                      ${TOPIC_ORDER.map(id => {
+                          let p = progress[id] || 0;
+                          return `<div style="margin:6px 0;"><span>${TOPIC_TITLES[id]}</span>
+                                  <div class="progress-bar" style="height:8px;"><div class="progress-fill" style="width:${p}%"></div></div>
+                                  <span class="text-muted" style="font-size:0.75rem;">${p}%</span></div>`;
+                      }).join('')}
+                    </div>
+                    <div class="card" style="background:#faf9ff;">
+                      <h4>🏆 Жетістіктер</h4>
+                      <p>✅ Тапсырмалар: <strong>${tasksDone.length}</strong> орындалды</p>
+                      <p>🧩 Судоку: <strong>${gameScores.sudoku||0}</strong> рет шешілді</p>
+                      <p>🗺️ Квест: <strong>${gameScores.kvest||0}</strong> ұпай</p>
+                      <p>🧠 Memory: <strong>${gameScores.memory||0}</strong> рет аяқталды</p>
+                      ${finalPassed ? '<p class="text-success">🏅 Қорытынды тест тапсырылған!</p>' : '<p class="text-muted">Қорытынды тест әлі тапсырылмады</p>'}
+                    </div>
+                  </div>
+                  ${finalPassed ? `<div class="mt-3 text-center"><button class="btn btn-primary" onclick="showCertificate()">📜 Сертификатты көру / Жүктеу</button></div>` : ''}
+                </div>
+                <div id="certBlock"></div>`;
+            }
+
+            window.uploadAvatar = function(input) {
+                if (input.files && input.files[0]) {
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        let imgData = e.target.result;
+                        localStorage.setItem('ps_photo_' + currentUser.id, imgData);
+                        let avatar = document.getElementById('profileAvatar');
+                        if (avatar) avatar.src = imgData;
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            };
+
+            window.showCertificate = function() {
+                let block = document.getElementById('certBlock');
+                block.innerHTML = `
+                <div class="certificate" id="certificateContent">
+                  <h2>СЕРТИФИКАТ</h2>
+                  <p style="font-size:1.2rem;">Осы сертификат <strong>${currentUser.name}</strong>-ға берілді</p>
+                  <p>«Zhanerkem's PyStep» курсын сәтті аяқтағаны үшін</p>
+                  <p>Python негіздері: Кіріспе, While, For, Else, Break/Continue, Трассировка</p>
+                  <p>Күні: ${new Date().toLocaleDateString('kk-KZ')}</p>
+                  <p style="font-size:2rem;">🏆</p>
+                  <button class="btn btn-primary mt-2" onclick="downloadCertPDF()">📥 PDF жүктеу</button>
+                </div>`;
+                window.downloadCertPDF = function() {
+                    html2canvas(document.getElementById('certificateContent')).then(canvas => {
+                        let img = canvas.toDataURL('image/png');
+                        let { jsPDF } = window.jspdf;
+                        let pdf = new jsPDF('landscape');
+                        pdf.addImage(img, 'PNG', 15, 15, 270, 180);
+                        pdf.save('Zhanerkem_PyStep_Certificate.pdf');
+                    });
+                };
+            };
+
+            // ============ AUTHOR ============
+            function renderAuthor(container) {
+                container.innerHTML = `
+                <div class="card text-center">
+                  <div style="width:200px; height:200px; border-radius:50%; background:#a855f7; border:4px solid #00e5ff; overflow:hidden;"><img src="Zhanerkemm.jpeg" style="width:100%;"></div>
+                  <h2>Жанеркем</h2>
+                  <p>Информатика пәні мұғалімі | Python оқытушы</p>
+                  <p class="text-muted">3-курс студенті. Оқушыларды алгоритмдік ойлауға үйретеді. Zhanerkem's PyStep негізін қалаушы. </p>
+                  <div class="mt-2">
+                    <p>Python 🐍 90%</p><div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+                    <p>Педагогика 95%</p><div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
+                    <p>Алгоритмдер 85%</p><div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+                    <p>Веб технологиялар 80%</p><div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+                    <p>Оқытуды жоспарлау және даралау 95%</p><div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+                  </div>
+                  <a href="https://wa.me/77714717137" target="_blank" class="btn btn-outline mt-2"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                </div>`;
+            }
+
+            // ============ INIT ============
+            function init() {
+                document.querySelectorAll('#sidebarNav .sidebar-item').forEach(el => el.addEventListener('click', () => navigate(el.dataset.page)));
+                currentUser = loadCurrentUser();
+                if (currentUser) navigate('dashboard');
+                else navigate('login');
+            }
+            init();
+
+            // Глобалды экспорттар
+            window.navigate = navigate;
+            window.openTopic = openTopic;
+            window.selectAnswer = selectAnswer;
+            window.resetQuiz = resetQuiz;
+            window.submitQuiz = submitQuiz;
+            window.startSudoku = startSudoku;
+            window.setSudokuDifficulty = setSudokuDifficulty;
+            window.startKvest = startKvest;
+            window.startPythonMemory = startPythonMemory;
+            window.selectSudokuCell = selectSudokuCell;
+            window.checkSudoku = checkSudoku;
+            window.showCertificate = showCertificate;
+            window.startCrosswordGame = startCrosswordGame;
+            window.startSpeedQuiz = startSpeedQuiz;
+            window.startHangman = startHangman;
+        })();
+    </script>
+</body>
+</html>
